@@ -1,0 +1,19 @@
+# Non-destructive checks only: no database, no NetBackup, no credentials.
+name: checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ShellCheck and Bats
+        run: sudo apt-get update && sudo apt-get install -y shellcheck bats
+      - name: Syntax, lint and tests
+        run: make check

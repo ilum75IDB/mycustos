@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------
+# NEVER PUBLISH: original sources with internal data (local reference only)
+# ---------------------------------------------------------------------------
+docs/originali-da-non-postare-su-github/
+
+# Personal working files (local only)
+/CLAUDE.md
+scripts/shell/config/zshrc.txt
+
+# ---------------------------------------------------------------------------
+# Runtime directories of an installation (created on the server, never in git)
+# ---------------------------------------------------------------------------
+/data/
+/logs/
+
+# Real configuration and credentials: only the *.example templates are tracked
+/config/*
+!/config/*.example
+!/config/.gitkeep
+.mylogin.cnf
+*.cnf.local
+.env
+.env.*
+
+# Incremental chain state, lock and temporary files
+lsn.txt
+lsn.pending.*
+backup_chain.state
+*.lock
+*.tmp
+
+# Backup artifacts and logs
+*.sql
+*.sql.gz
+*.xbstream
+*.tar.gz
+*.tar.zst
+*.zst
+*.part_[0-9][0-9][0-9]
+*.log
+*.ERR
+*.OK
+*.TIMEOUT
+
+# ---------------------------------------------------------------------------
+# macOS / editors
+# ---------------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

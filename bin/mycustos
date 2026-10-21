@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Ivan Luminaria — IDEA DB CONSULTING S.R.L.
+# Original project: https://github.com/ilum75IDB/mycustos
+#
+# mycustos - standardized MySQL backup runner.
+# Entry point: resolves the installation base from its own location (bin/..),
+# loads the core modules and dispatches to bin/modules/commands/<command>.sh.
+
+set -uo pipefail
+
+if (( BASH_VERSINFO[0] < 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 2) )); then
+  printf 'mycustos: Bash 4.2 or newer is required (found %s)\n' "$BASH_VERSION" >&2
+  exit 1
+fi
+
+# shellcheck disable=SC2034  # used by the command modules
+readonly MYCUSTOS_VERSION="0.1.0-dev"
+
+# Works through symlinks (e.g. /usr/local/bin/mycustos -> <base>/bin/mycustos).
+MYCUSTOS_HOME=$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")/.." && pwd -P) || {
+  echo 'mycustos: cannot resolve the installation directory' >&2
+  exit 1
+}
+readonly MYCUSTOS_HOME
+readonly MYCUSTOS_MODULES="$MYCUSTOS_HOME/bin/modules"
+
+# shellcheck source=bin/modules/core/common.sh
+source "$MYCUSTOS_MODULES/core/common.sh" || {
+  echo "mycustos: cannot load $MYCUSTOS_MODULES/core/common.sh" >&2
+  exit 1
+}
+
+# Global options accepted before the command.
+case "${1:-}" in
+  ''|-h|--help) set -- help "${@:2}" ;;
+  -V|--version) set -- version "${@:2}" ;;
+  -*) die_usage "unknown option: $1" ;;
+esac
+
+cmd=$1
+shift
+mc_is_known_command "$cmd" || die_usage "unknown command: $cmd"
+mc_load_command "$cmd"
+"cmd_${cmd//-/_}" "$@"
