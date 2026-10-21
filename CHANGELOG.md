@@ -6,6 +6,8 @@ and the project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-21
+
 ### Added
 
 - Project layout: `bin/`, `bin/modules/`, `config/`, `tests/`, `contrib/`, `docs/`.
@@ -21,3 +23,6 @@ and the project follows [Semantic Versioning](https://semver.org/).
   option > environment > file > default.
 - `config/mycustos.conf.example` and `config/backup-credentials.conf.example`.
 - `SECURITY.md` and `CONTRIBUTING.md`.
+
+[Unreleased]: https://github.com/ilum75IDB/mycustos/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/ilum75IDB/mycustos/releases/tag/v0.1.0
