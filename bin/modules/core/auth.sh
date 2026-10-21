@@ -80,11 +80,17 @@ mc_auth_run() {
   fi
 }
 
-# Connection test (preflight --test-connection): SELECT 1 with the selected method.
-mc_auth_test() {
+# Runs one SQL statement with the mysql client and prints the raw result
+# (no column names), e.g. mc_auth_query 'SELECT @@version_comment'.
+mc_auth_query() {
   local opts=(--connect-timeout=10 -N -B)
   [ -z "${MC_CONF[mysql_socket]}" ] || opts+=("--socket=${MC_CONF[mysql_socket]}")
-  mc_auth_run mysql "${opts[@]}" -e 'SELECT 1' >/dev/null 2>&1
+  mc_auth_run mysql "${opts[@]}" -e "$1"
+}
+
+# Connection test (preflight --test-connection): SELECT 1 with the selected method.
+mc_auth_test() {
+  mc_auth_query 'SELECT 1' >/dev/null 2>&1
 }
 
 # Removes the temporary files of the cnf isolation. Safe to call more than once.

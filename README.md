@@ -64,7 +64,7 @@ bin/mycustos version
 
 ```text
 mycustos backup [--type full|incr] [--dry-run]   # planned
-mycustos preflight [--test-connection]           # planned
+mycustos preflight [--test-connection]           # available
 mycustos check-config                            # planned
 mycustos status                                  # planned
 mycustos config show | migrate FILE              # planned
@@ -79,6 +79,18 @@ Global options (before the command):
 ```
 
 `mycustos help` always shows which commands are already implemented in the version you are running.
+
+### preflight
+
+`mycustos preflight` checks what a backup needs, without changing anything: the
+configuration, the authentication, `data_dir`, `logs_dir` and the `config/`
+directory, the free space, and the commands required by the configured engine,
+compression and archive backend. Each check prints `OK`, `WARN` or `FAIL`, with a
+hint when there is something to change. `--test-connection` also connects to the
+MySQL server and, with `engine=auto`, shows which engine the server edition selects.
+
+Exit code `0` when nothing failed (warnings allowed), `3` for a configuration
+problem, `4` for an environment problem.
 
 ## Configuration
 
