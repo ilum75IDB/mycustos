@@ -49,7 +49,7 @@ while [ $# -gt 0 ]; do
     -q|--quiet)   MC_VERBOSITY=0 ;;
     -v|--verbose) MC_VERBOSITY=2 ;;
     --config|--home)
-      [ $# -ge 2 ] && [ -n "$2" ] || die_usage "option $1 requires a value"
+      if [ $# -lt 2 ] || [ -z "$2" ]; then die_usage "option $1 requires a value"; fi
       if [ "$1" = --config ]; then MC_OPT_CONFIG=$2; else MC_OPT_HOME=$2; fi
       shift ;;
     --config=*|--home=*)

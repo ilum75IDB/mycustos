@@ -24,8 +24,14 @@
 
 readonly MC_CONFIG_SCHEMA_VERSION=1
 
-declare -gA MC_SCHEMA_TYPE=() MC_SCHEMA_DEFAULT=()
-declare -gA MC_CONF=() MC_CONF_RAW=() MC_CONF_ORIGIN=()
+# Declared and assigned separately: Bash 4.2 mishandles "declare -gA x=()" when
+# the file is sourced from a function (e.g. by the tests).
+declare -gA MC_SCHEMA_TYPE MC_SCHEMA_DEFAULT MC_CONF MC_CONF_RAW MC_CONF_ORIGIN
+MC_SCHEMA_TYPE=()
+MC_SCHEMA_DEFAULT=()
+MC_CONF=()
+MC_CONF_RAW=()
+MC_CONF_ORIGIN=()
 MC_CONFIG_KEYS=()
 MC_CONFIG_ERRORS=()
 MC_CONFIG_FILE=''
