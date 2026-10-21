@@ -1,0 +1,57 @@
+# mycustos configuration — copy to config/mycustos.conf and adapt.
+#
+# Format: key=value, one per line. This file is READ by mycustos, never
+# executed: no shell syntax, no variables except the four below, no inline
+# comments ("key=value # note" keeps "# note" in the value).
+#
+#   ${MYCUSTOS_HOME}    base directory (the backup mount point mycustos is installed on)
+#   ${MYCUSTOS_CONFIG}  directory of this file
+#   ${MYCUSTOS_DATA}    data_dir
+#   ${MYCUSTOS_LOGS}    logs_dir
+#
+# Any key can be overridden by an environment variable MYCUSTOS_<KEY>
+# (e.g. MYCUSTOS_RETENTION_DAYS=3), except config_schema. Unknown keys are errors.
+
+# Format version of this file. Change it only when the release notes say so.
+config_schema=1
+
+# Name of this MySQL instance: used in log, flag and archive names.
+instance=main
+
+# ALL, or a comma-separated list of databases (no spaces).
+databases=ALL
+
+# full | incr (incr requires engine=mysqlbackup)
+backup_type=full
+
+# auto | mysqlbackup | mysqldump | mydumper | xtrabackup | mariadb-backup
+# auto picks the engine from the server edition.
+engine=auto
+
+# Authentication: auto | cnf | login-path
+#   cnf         MySQL option file (auth_cnf), permissions 600
+#   login-path  mysql_config_editor login path (auth_login_path)
+#   auto        cnf when auth_cnf exists, otherwise login-path
+auth_method=auto
+auth_cnf=${MYCUSTOS_CONFIG}/backup-credentials.conf
+auth_login_path=
+
+# MySQL socket; empty = the client default.
+mysql_socket=
+
+# gzip | zstd, and the level (gzip 1-9, zstd 1-19)
+compress=zstd
+compress_level=7
+
+# simple (one archive) | split (numbered chunks)
+packaging=simple
+
+# none (local only) | netbackup
+archive_backend=none
+
+# Days to keep local backups when archive_backend=none.
+retention_days=7
+
+# Where backups and logs go. Defaults: <home>/data and <home>/logs.
+data_dir=${MYCUSTOS_HOME}/data
+logs_dir=${MYCUSTOS_HOME}/logs

@@ -70,9 +70,48 @@ mycustos status                                  # planned
 mycustos config show | migrate FILE              # planned
 mycustos version [--short]                       # available
 mycustos help [command]                          # available
+
+Global options (before the command):
+  --config FILE   configuration file (default: <base>/config/mycustos.conf)
+  --home DIR      base of config/, data/ and logs/ (default: the installation)
+  -q, --quiet     warnings and errors only
+  -v, --verbose   debug messages too
 ```
 
 `mycustos help` always shows which commands are already implemented in the version you are running.
+
+## Configuration
+
+`config/mycustos.conf` is a plain `key=value` file, **read by a parser and never
+executed**: no shell syntax, and an unknown key is reported as an error, so a
+typo cannot go unnoticed. Start from [`config/mycustos.conf.example`](config/mycustos.conf.example),
+which documents every key.
+
+- Only four variables are expanded: `${MYCUSTOS_HOME}`, `${MYCUSTOS_CONFIG}`,
+  `${MYCUSTOS_DATA}` and `${MYCUSTOS_LOGS}`.
+- Precedence: command-line option > environment variable `MYCUSTOS_<KEY>`
+  (e.g. `MYCUSTOS_RETENTION_DAYS=3`) > file > built-in default.
+- `config_schema` versions the file format: it changes only when the format does.
+
+MySQL credentials go in a separate option file, `config/backup-credentials.conf`
+(permissions `600`), see [`config/backup-credentials.conf.example`](config/backup-credentials.conf.example).
+
+## Exit codes
+
+| Code | Meaning |
+|---|---|
+| 0 | success |
+| 1 | unexpected internal error |
+| 2 | invalid command line |
+| 3 | configuration missing or invalid |
+| 4 | prerequisite missing (command, directory, permission, MySQL server) |
+| 5 | another run holds the lock |
+| 6 | backup failed: nothing usable was produced |
+| 7 | local backup OK, archiving failed |
+| 8 | a phase exceeded its time limit |
+| 69 | command not implemented in this version |
+
+These values are stable: existing codes are never renumbered.
 
 ## Requirements
 
@@ -94,9 +133,10 @@ mycustos help [command]                          # available
 
 Version `1.0.0` will be tagged only after validation on a real server.
 
-## Contributing
+## Contributing and security
 
-The project is in its initial design phase. Issues with ideas and feedback are welcome; contribution guidelines will be published before the first release.
+Issues with ideas and feedback are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md).
+To report a vulnerability, follow [SECURITY.md](SECURITY.md) and do not open a public issue.
 
 ## License & attribution
 

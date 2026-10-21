@@ -5,7 +5,8 @@
 #
 # mycustos - standardized MySQL backup runner.
 # Entry point: resolves the installation base from its own location (bin/..),
-# loads the core modules and dispatches to bin/modules/commands/<command>.sh.
+# loads the core modules, reads the global options and dispatches to
+# bin/modules/commands/<command>.sh.
 
 set -uo pipefail
 
@@ -18,25 +19,59 @@ fi
 readonly MYCUSTOS_VERSION="0.1.0-dev"
 
 # Works through symlinks (e.g. /usr/local/bin/mycustos -> <base>/bin/mycustos).
-MYCUSTOS_HOME=$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")/.." && pwd -P) || {
+mc_base=$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")/.." && pwd -P) || {
   echo 'mycustos: cannot resolve the installation directory' >&2
   exit 1
 }
-readonly MYCUSTOS_HOME
-readonly MYCUSTOS_MODULES="$MYCUSTOS_HOME/bin/modules"
+readonly MYCUSTOS_MODULES="$mc_base/bin/modules"
 
-# shellcheck source=bin/modules/core/common.sh
-source "$MYCUSTOS_MODULES/core/common.sh" || {
-  echo "mycustos: cannot load $MYCUSTOS_MODULES/core/common.sh" >&2
+mc_core_failed() {
+  echo "mycustos: cannot load $MYCUSTOS_MODULES/core/$1.sh" >&2
   exit 1
 }
+# shellcheck source=bin/modules/core/errors.sh
+source "$MYCUSTOS_MODULES/core/errors.sh" || mc_core_failed errors
+# shellcheck source=bin/modules/core/common.sh
+source "$MYCUSTOS_MODULES/core/common.sh" || mc_core_failed common
+# shellcheck source=bin/modules/core/log.sh
+source "$MYCUSTOS_MODULES/core/log.sh" || mc_core_failed log
+# shellcheck source=bin/modules/core/config.sh
+source "$MYCUSTOS_MODULES/core/config.sh" || mc_core_failed config
+unset -f mc_core_failed
 
-# Global options accepted before the command.
-case "${1:-}" in
-  ''|-h|--help) set -- help "${@:2}" ;;
-  -V|--version) set -- version "${@:2}" ;;
-  -*) die_usage "unknown option: $1" ;;
-esac
+# Global options, accepted before the command.
+MC_OPT_CONFIG=''
+MC_OPT_HOME=''
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)    set -- help "${@:2}"; break ;;
+    -V|--version) set -- version "${@:2}"; break ;;
+    -q|--quiet)   MC_VERBOSITY=0 ;;
+    -v|--verbose) MC_VERBOSITY=2 ;;
+    --config|--home)
+      [ $# -ge 2 ] && [ -n "$2" ] || die_usage "option $1 requires a value"
+      if [ "$1" = --config ]; then MC_OPT_CONFIG=$2; else MC_OPT_HOME=$2; fi
+      shift ;;
+    --config=*|--home=*)
+      [ -n "${1#*=}" ] || die_usage "option ${1%%=*} requires a value"
+      if [[ "$1" == --config=* ]]; then MC_OPT_CONFIG=${1#*=}; else MC_OPT_HOME=${1#*=}; fi ;;
+    --) shift; break ;;
+    -*) die_usage "unknown option: $1" ;;
+    *)  break ;;
+  esac
+  shift
+done
+[ $# -gt 0 ] || set -- help
+
+# Base of config/, data/ and logs/: the installation itself, unless --home says otherwise.
+if [ -n "$MC_OPT_HOME" ]; then
+  MYCUSTOS_HOME=$(cd -- "$MC_OPT_HOME" 2>/dev/null && pwd -P) ||
+    die "$MC_EX_USAGE" "--home: not a directory: $MC_OPT_HOME"
+else
+  MYCUSTOS_HOME=$mc_base
+fi
+readonly MYCUSTOS_HOME
+unset mc_base
 
 cmd=$1
 shift

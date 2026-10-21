@@ -11,4 +11,13 @@ and the project follows [Semantic Versioning](https://semver.org/).
 - Project layout: `bin/`, `bin/modules/`, `config/`, `tests/`, `contrib/`, `docs/`.
 - `bin/mycustos` entry point with the `help` and `version` commands.
 - Apache License 2.0, `NOTICE` file and SPDX headers.
-- `make check` (bash -n, ShellCheck, Bats) and the GitHub Actions `checks` workflow.
+- `make check` (bash -n, ShellCheck, Bats) and the GitHub Actions `checks` workflow,
+  with an additional test job on Bash 4.2.
+- Global options `--config FILE`, `--home DIR`, `-q/--quiet`, `-v/--verbose`.
+- `core/errors.sh`: stable table of exit codes.
+- `core/log.sh`: timestamped logging with verbosity levels, run log, phase log names.
+- `core/config.sh`: `key=value` parser that never executes the file, with a key whitelist,
+  typed validation, limited `${MYCUSTOS_*}` expansions and the precedence
+  option > environment > file > default.
+- `config/mycustos.conf.example` and `config/backup-credentials.conf.example`.
+- `SECURITY.md` and `CONTRIBUTING.md`.
