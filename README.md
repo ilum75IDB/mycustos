@@ -65,7 +65,7 @@ bin/mycustos version
 ```text
 mycustos backup [--type full|incr] [--dry-run]   # planned
 mycustos preflight [--test-connection]           # available
-mycustos check-config                            # planned
+mycustos check-config                            # available
 mycustos status                                  # planned
 mycustos config show | migrate FILE              # planned
 mycustos version [--short]                       # available
@@ -91,6 +91,18 @@ MySQL server and, with `engine=auto`, shows which engine the server edition sele
 
 Exit code `0` when nothing failed (warnings allowed), `3` for a configuration
 problem, `4` for an environment problem.
+
+### check-config
+
+`mycustos check-config` validates `mycustos.conf` and lists **every** problem in one
+run, each with its origin (`file:line`, `env MYCUSTOS_<KEY>` or `default`): unknown
+or duplicate keys, wrong types and ranges, forbidden expansions, an unsupported
+`config_schema`, and rules between keys (e.g. `compress_level` at most 9 with `gzip`,
+`backup_type=incr` only with `engine=mysqlbackup`). Valid settings that are probably
+not what was meant are shown as warnings. It never touches the filesystem or the
+server: that is the job of `preflight`.
+
+Exit code `0` when valid (warnings allowed), `3` when invalid.
 
 ## Configuration
 

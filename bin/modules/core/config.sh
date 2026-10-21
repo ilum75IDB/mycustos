@@ -307,4 +307,16 @@ _mc_config_cross_check() {
      (( MC_CONF[compress_level] > 9 )); then
     MC_CONFIG_ERRORS+=("${MC_CONF_ORIGIN[compress_level]}: compress_level: must be between 1 and 9 with compress=gzip (found '${MC_CONF[compress_level]}')")
   fi
+  # INCR backups rely on the mysqlbackup LSN chain; with engine=auto the
+  # server edition decides (check-config warns about it).
+  if [ "${MC_CONF[backup_type]-}" = incr ]; then
+    case "${MC_CONF[engine]-}" in
+      mysqlbackup|auto|'') ;;
+      *) MC_CONFIG_ERRORS+=("${MC_CONF_ORIGIN[backup_type]}: backup_type: incr is supported only with engine=mysqlbackup (found engine=${MC_CONF[engine]})") ;;
+    esac
+  fi
+  if [ "${MC_CONF[auth_method]-}" = login-path ] && [ -n "${MC_CONF[auth_login_path]+set}" ] &&
+     [ -z "${MC_CONF[auth_login_path]}" ]; then
+    MC_CONFIG_ERRORS+=("${MC_CONF_ORIGIN[auth_method]}: auth_login_path: required with auth_method=login-path")
+  fi
 }

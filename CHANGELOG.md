@@ -14,6 +14,13 @@ and the project follows [Semantic Versioning](https://semver.org/).
 - `mycustos preflight [--test-connection]`: read-only check of configuration,
   authentication, directories, free space and required commands; with
   `--test-connection` also the server connection and the engine chosen by `engine=auto`.
+- `mycustos check-config`: full validation report of `mycustos.conf`, every error with
+  its origin, plus warnings for settings that are valid but probably unintended.
+
+### Changed
+
+- Configuration: new rules between keys, `backup_type=incr` only with
+  `engine=mysqlbackup` (or `auto`), `auth_method=login-path` requires `auth_login_path`.
 
 ## [0.1.0] - 2026-10-21
 
