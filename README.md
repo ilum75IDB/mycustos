@@ -93,8 +93,22 @@ which documents every key.
   (e.g. `MYCUSTOS_RETENTION_DAYS=3`) > file > built-in default.
 - `config_schema` versions the file format: it changes only when the format does.
 
-MySQL credentials go in a separate option file, `config/backup-credentials.conf`
-(permissions `600`), see [`config/backup-credentials.conf.example`](config/backup-credentials.conf.example).
+### Authentication
+
+Credentials never appear on a command line or in a log: mycustos passes only the
+path of an option file or the name of a login path. `auth_method` selects how:
+
+| `auth_method` | Credentials from | Client option |
+|---|---|---|
+| `cnf` | `auth_cnf`, a MySQL option file with a `[client]` section, permissions `600` (see [`config/backup-credentials.conf.example`](config/backup-credentials.conf.example)) | `--defaults-file=<auth_cnf>` |
+| `login-path` | `auth_login_path`, created with `mysql_config_editor set --login-path=...` | `--login-path=<name>` |
+| `auto` (default) | `cnf` when `auth_cnf` exists, otherwise `login-path` | |
+
+With `cnf` the client reads that file only: `--defaults-file` skips `/etc/my.cnf`
+and `~/.my.cnf`, and `~/.mylogin.cnf` is replaced by an empty private file for the
+run, so no credential is mixed in from elsewhere. An `auth_cnf` that exists but is
+unusable (unreadable, no `[client]` section) is an error, also with `auto`: mycustos
+does not silently fall back to the login path. Permissions wider than `600` give a warning.
 
 ## Exit codes
 

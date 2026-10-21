@@ -6,6 +6,12 @@ and the project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `core/auth.sh`: choice of the MySQL authentication (`cnf`, `login-path`, `auto`),
+  isolation of the option file from `~/.my.cnf` and `~/.mylogin.cnf`, connection test
+  helper; credentials never on the command line or in logs.
+
 ## [0.1.0] - 2026-10-21
 
 ### Added
