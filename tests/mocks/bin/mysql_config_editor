@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Ivan Luminaria — IDEA DB CONSULTING S.R.L.
+# Original project: https://github.com/ilum75IDB/mycustos
+#
+# Test double of mysql_config_editor: "print --login-path=NAME" shows an entry
+# only when NAME is listed in $MC_MOCK_LOGIN_PATHS (space separated).
+[ "${1:-}" = print ] || exit 1
+name=${2#--login-path=}
+for p in ${MC_MOCK_LOGIN_PATHS:-}; do
+  if [ "$p" = "$name" ]; then
+    printf '[%s]\nuser = "backup_user"\npassword = *****\n' "$name"
+    exit 0
+  fi
+done
+exit 0

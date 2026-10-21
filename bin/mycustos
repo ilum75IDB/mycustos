@@ -37,6 +37,8 @@ source "$MYCUSTOS_MODULES/core/common.sh" || mc_core_failed common
 source "$MYCUSTOS_MODULES/core/log.sh" || mc_core_failed log
 # shellcheck source=bin/modules/core/config.sh
 source "$MYCUSTOS_MODULES/core/config.sh" || mc_core_failed config
+# shellcheck source=bin/modules/core/auth.sh
+source "$MYCUSTOS_MODULES/core/auth.sh" || mc_core_failed auth
 unset -f mc_core_failed
 
 # Global options, accepted before the command.
