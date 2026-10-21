@@ -11,6 +11,9 @@ and the project follows [Semantic Versioning](https://semver.org/).
 - `core/auth.sh`: choice of the MySQL authentication (`cnf`, `login-path`, `auto`),
   isolation of the option file from `~/.my.cnf` and `~/.mylogin.cnf`, connection test
   helper; credentials never on the command line or in logs.
+- `mycustos preflight [--test-connection]`: read-only check of configuration,
+  authentication, directories, free space and required commands; with
+  `--test-connection` also the server connection and the engine chosen by `engine=auto`.
 
 ## [0.1.0] - 2026-10-21
 
