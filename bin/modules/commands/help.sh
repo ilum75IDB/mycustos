@@ -8,7 +8,7 @@ mc_command_summary() {
   case "$1" in
     backup)       echo 'Run a FULL or INCR backup (--type full|incr, --dry-run)' ;;
     preflight)    echo 'Check prerequisites and suggest config changes (read-only)' ;;
-    check-config) echo 'Validate mycustos.conf and dependencies (read-only)' ;;
+    check-config) echo 'Validate mycustos.conf, reporting every problem (read-only)' ;;
     status)       echo 'Show the outcome of the last run' ;;
     config)       echo 'Show the effective configuration or migrate a legacy file' ;;
     version)      echo 'Show version and attribution' ;;

@@ -114,7 +114,7 @@ select_rc() {
 
 @test "login-path: empty name is an error" {
   write_login_file
-  load_conf auth_method=login-path
+  load_conf auth_method=login-path || true   # also a configuration error
   select_rc
   [ "$rc" -eq 1 ]
   [ "${MC_AUTH_ERRORS[0]}" = 'auth_login_path: required with auth_method=login-path' ]
