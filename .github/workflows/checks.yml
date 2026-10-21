@@ -17,3 +17,17 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y shellcheck bats
       - name: Syntax, lint and tests
         run: make check
+
+  # Minimum supported Bash (RHEL 7): the official bash:4.2 image, Bats from source.
+  bash-4-2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests on Bash 4.2
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src bash:4.2 bash -c '
+            set -e
+            apk add --no-cache git >/dev/null
+            git clone --quiet --depth 1 --branch v1.11.1 https://github.com/bats-core/bats-core.git /tmp/bats
+            bash --version | head -n 1
+            /tmp/bats/bin/bats tests'

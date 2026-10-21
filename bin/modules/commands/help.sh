@@ -37,6 +37,10 @@ cmd_help() {
   done
   msg ''
   msg 'Global options:'
+  msg '  --config FILE  Configuration file (default: <home>/config/mycustos.conf)'
+  msg '  --home DIR     Base of config/, data/ and logs/ (default: the installation)'
+  msg '  -q, --quiet    Show only warnings and errors'
+  msg '  -v, --verbose  Show debug messages too'
   msg '  -h, --help     Same as "mycustos help"'
   msg '  -V, --version  Same as "mycustos version"'
   msg ''

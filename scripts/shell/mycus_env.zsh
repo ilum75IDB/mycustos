@@ -18,11 +18,10 @@ export MYCUS_SHELL_DIR="$MYCUS_SCRIPTS_DIR/shell"
 export MYCUS_DOCS_DIR="$MYCUS_PROJECT_DIR/docs"
 export MYCUS_HANDOFF_DIR="$MYCUS_DOCS_DIR/handoff"
 export MYCUS_LICENSING_DIR="$MYCUS_DOCS_DIR/licensing"
-# Nota: bin/, lib/, conf/, tests/ sono anticipate — la struttura reale del
-# codice verrà definita quando arriverà la base di partenza già sviluppata.
+# Codice: bin/mycustos + moduli in bin/modules/; template di config in config/.
 export MYCUS_BIN_DIR="$MYCUS_PROJECT_DIR/bin"
-export MYCUS_LIB_DIR="$MYCUS_PROJECT_DIR/lib"
-export MYCUS_CONF_DIR="$MYCUS_PROJECT_DIR/conf"
+export MYCUS_LIB_DIR="$MYCUS_BIN_DIR/modules"
+export MYCUS_CONF_DIR="$MYCUS_PROJECT_DIR/config"
 export MYCUS_TESTS_DIR="$MYCUS_PROJECT_DIR/tests"
 
 # ===================================================================
@@ -120,7 +119,6 @@ mycusgo() {
     # Verifica esistenza directory
     if [[ ! -d "$target_dir" ]]; then
         echo "❌ Directory non trovata: $target_dir"
-        echo "   (potrebbe essere una dir anticipata, non ancora creata)"
         return 1
     fi
 

@@ -52,10 +52,10 @@ Gestione unificata navigazione directory progetto
 COMANDI DISPONIBILI:
 
   project             Va a project root directory
-  bin                 Va a bin/ (entry point eseguibili, anticipata)
-  lib                 Va a lib/ (librerie Bash, anticipata)
-  conf                Va a conf/ (file di configurazione esempio, anticipata)
-  tests               Va a tests/ (test automatici, anticipata)
+  bin                 Va a bin/ (entry point mycustos)
+  lib                 Va a bin/modules/ (moduli Bash)
+  conf                Va a config/ (template *.example)
+  tests               Va a tests/ (test Bats)
   docs                Va a docs/ (documentazione progetto)
   handoff             Va a docs/handoff/ (recap sessioni)
   licensing           Va a docs/licensing/ (appunti licenza e paternità)
@@ -81,10 +81,10 @@ ESEMPI:
 DIRECTORY MAPPATE:
 
   project    → $MYCUS_PROJECT_DIR
-  bin        → $MYCUS_BIN_DIR              (anticipata)
-  lib        → $MYCUS_LIB_DIR              (anticipata)
-  conf       → $MYCUS_CONF_DIR             (anticipata)
-  tests      → $MYCUS_TESTS_DIR            (anticipata)
+  bin        → $MYCUS_BIN_DIR
+  lib        → $MYCUS_LIB_DIR
+  conf       → $MYCUS_CONF_DIR
+  tests      → $MYCUS_TESTS_DIR
   docs       → $MYCUS_DOCS_DIR
   handoff    → $MYCUS_HANDOFF_DIR
   licensing  → $MYCUS_LICENSING_DIR
@@ -95,8 +95,8 @@ DIRECTORY MAPPATE:
 NOTE:
 
   • Le path sono ricavate dalle variabili \$MYCUS_* (vedi 'mycushelp -V')
-  • bin/lib/conf/tests sono anticipate: la struttura definitiva arriverà
-    con la base di codice già sviluppata
+  • lib = bin/modules/, conf = config/ del progetto;
+    config = scripts/shell/config/ (copia ~/.zshrc)
 
 ================================================================
 EOF
@@ -115,7 +115,7 @@ show_list() {
 $(echo -e "${YELLOW}Directory Progetto:${NC}")
   project    → $MYCUS_PROJECT_DIR
 
-$(echo -e "${YELLOW}Directory Codice (anticipate):${NC}")
+$(echo -e "${YELLOW}Directory Codice:${NC}")
   bin        → $MYCUS_BIN_DIR
   lib        → $MYCUS_LIB_DIR
   conf       → $MYCUS_CONF_DIR

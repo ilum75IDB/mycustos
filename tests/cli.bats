@@ -98,3 +98,37 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"Installation: $(cd "$BATS_TEST_DIRNAME/.." && pwd -P)"* ]]
 }
+
+@test "help lists the global options" {
+  run "$MYCUSTOS" help
+  for o in --config --home --quiet --verbose; do
+    [[ "$output" == *"$o"* ]]
+  done
+}
+
+@test "global options are accepted before the command" {
+  run "$MYCUSTOS" --quiet --verbose --config /nonexistent.conf version --short
+  [ "$status" -eq 0 ]
+  run "$MYCUSTOS" -q -- version --short
+  [ "$status" -eq 0 ]
+  run "$MYCUSTOS" -v
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Usage:"* ]]
+}
+
+@test "--config and --home require a value" {
+  for o in --config --home --config= --home=; do
+    run "$MYCUSTOS" "$o"
+    [ "$status" -eq 2 ]
+    [[ "$output" == *"requires a value"* ]]
+  done
+}
+
+@test "--home must be an existing directory and becomes the base" {
+  run "$MYCUSTOS" --home "$BATS_TEST_TMPDIR/missing" help
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"--home: not a directory"* ]]
+  run "$MYCUSTOS" --home="$BATS_TEST_TMPDIR" help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Installation: $(cd "$BATS_TEST_TMPDIR" && pwd -P)"* ]]
+}

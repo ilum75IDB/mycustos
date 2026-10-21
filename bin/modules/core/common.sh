@@ -4,11 +4,7 @@
 #
 # Core helpers shared by every command. Sourced by bin/mycustos: do not execute.
 
-# Exit codes (the complete table will live in core/errors.sh).
-# shellcheck disable=SC2034  # used by the command modules
-readonly MC_EX_OK=0
-readonly MC_EX_USAGE=2
-readonly MC_EX_UNAVAILABLE=69
+# Requires core/errors.sh (exit codes).
 
 # Commands of the CLI, in the order shown by "mycustos help".
 readonly MC_COMMANDS=(backup preflight check-config status config version help)
@@ -16,10 +12,14 @@ readonly MC_COMMANDS=(backup preflight check-config status config version help)
 msg()  { printf '%s\n' "$*"; }
 warn() { printf 'mycustos: warning: %s\n' "$*" >&2; }
 
+# Fatal error: also recorded in the run log when core/log.sh has one open.
 die() {
   local code=$1
   shift
   printf 'mycustos: %s\n' "$*" >&2
+  if declare -F mc_log_to_file >/dev/null; then
+    mc_log_to_file ERROR "$*"
+  fi
   exit "$code"
 }
 
@@ -51,5 +51,5 @@ mc_load_command() {
   mc_is_implemented "$1" ||
     die "$MC_EX_UNAVAILABLE" "command '$1' is not implemented yet in mycustos $MYCUSTOS_VERSION"
   # shellcheck source=/dev/null
-  source "$file" || die 1 "cannot load $file"
+  source "$file" || die "$MC_EX_FAILURE" "cannot load $file"
 }
