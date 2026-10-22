@@ -16,6 +16,8 @@ and the project follows [Semantic Versioning](https://semver.org/).
   `--test-connection` also the server connection and the engine chosen by `engine=auto`.
 - `mycustos check-config`: full validation report of `mycustos.conf`, every error with
   its origin, plus warnings for settings that are valid but probably unintended.
+- `mycustos config show`: effective configuration with the origin of each value
+  (`config migrate` answers exit 69 until it is implemented).
 
 ### Changed
 

@@ -67,7 +67,8 @@ mycustos backup [--type full|incr] [--dry-run]   # planned
 mycustos preflight [--test-connection]           # available
 mycustos check-config                            # available
 mycustos status                                  # planned
-mycustos config show | migrate FILE              # planned
+mycustos config show                             # available
+mycustos config migrate FILE                     # planned
 mycustos version [--short]                       # available
 mycustos help [command]                          # available
 
@@ -103,6 +104,21 @@ not what was meant are shown as warnings. It never touches the filesystem or the
 server: that is the job of `preflight`.
 
 Exit code `0` when valid (warnings allowed), `3` when invalid.
+
+### config show
+
+`mycustos config show` prints the effective configuration, one line per key, with
+the origin of each value:
+
+```text
+compress=gzip                             # /srv/mycustos/config/mycustos.conf:3
+compress_level=7                          # default
+retention_days=3                          # env MYCUSTOS_RETENTION_DAYS
+```
+
+Values are shown after the `${MYCUSTOS_*}` expansions. To parse a line, split it on
+the first `=` and on the last `  # `. The output is not meant to be used as
+`mycustos.conf`. The content of the credentials file is never shown.
 
 ## Configuration
 
