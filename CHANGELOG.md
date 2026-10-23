@@ -6,6 +6,26 @@ and the project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-23
+
+### Added
+
+- `core/auth.sh`: choice of the MySQL authentication (`cnf`, `login-path`, `auto`),
+  isolation of the option file from `~/.my.cnf` and `~/.mylogin.cnf`, connection test
+  helper; credentials never on the command line or in logs.
+- `mycustos preflight [--test-connection]`: read-only check of configuration,
+  authentication, directories, free space and required commands; with
+  `--test-connection` also the server connection and the engine chosen by `engine=auto`.
+- `mycustos check-config`: full validation report of `mycustos.conf`, every error with
+  its origin, plus warnings for settings that are valid but probably unintended.
+- `mycustos config show`: effective configuration with the origin of each value
+  (`config migrate` answers exit 69 until it is implemented).
+
+### Changed
+
+- Configuration: new rules between keys, `backup_type=incr` only with
+  `engine=mysqlbackup` (or `auto`), `auth_method=login-path` requires `auth_login_path`.
+
 ## [0.1.0] - 2026-10-21
 
 ### Added
@@ -24,5 +44,6 @@ and the project follows [Semantic Versioning](https://semver.org/).
 - `config/mycustos.conf.example` and `config/backup-credentials.conf.example`.
 - `SECURITY.md` and `CONTRIBUTING.md`.
 
-[Unreleased]: https://github.com/ilum75IDB/mycustos/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ilum75IDB/mycustos/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ilum75IDB/mycustos/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ilum75IDB/mycustos/releases/tag/v0.1.0

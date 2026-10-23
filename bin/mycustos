@@ -16,7 +16,7 @@ if (( BASH_VERSINFO[0] < 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 2) ))
 fi
 
 # shellcheck disable=SC2034  # used by the command modules
-readonly MYCUSTOS_VERSION="0.1.0"
+readonly MYCUSTOS_VERSION="0.2.0"
 
 # Works through symlinks (e.g. /usr/local/bin/mycustos -> <base>/bin/mycustos).
 mc_base=$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")/.." && pwd -P) || {
@@ -37,6 +37,8 @@ source "$MYCUSTOS_MODULES/core/common.sh" || mc_core_failed common
 source "$MYCUSTOS_MODULES/core/log.sh" || mc_core_failed log
 # shellcheck source=bin/modules/core/config.sh
 source "$MYCUSTOS_MODULES/core/config.sh" || mc_core_failed config
+# shellcheck source=bin/modules/core/auth.sh
+source "$MYCUSTOS_MODULES/core/auth.sh" || mc_core_failed auth
 unset -f mc_core_failed
 
 # Global options, accepted before the command.

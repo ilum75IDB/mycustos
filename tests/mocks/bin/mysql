@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Ivan Luminaria — IDEA DB CONSULTING S.R.L.
+# Original project: https://github.com/ilum75IDB/mycustos
+#
+# Test double of the mysql client: records its arguments and the login file
+# it would read in $MC_MOCK_LOG, prints $MC_MOCK_MYSQL_OUTPUT (if set) and exits
+# with $MC_MOCK_MYSQL_RC (default 0).
+{
+  printf 'login_file=%s\n' "${MYSQL_TEST_LOGIN_FILE-<unset>}"
+  if [ -n "${MYSQL_TEST_LOGIN_FILE:-}" ] && [ -f "$MYSQL_TEST_LOGIN_FILE" ] && [ ! -s "$MYSQL_TEST_LOGIN_FILE" ]; then
+    echo 'login_file_empty=yes'
+  fi
+  printf 'arg=%s\n' "$@"
+} >> "${MC_MOCK_LOG:-/dev/null}"
+[ -z "${MC_MOCK_MYSQL_OUTPUT:-}" ] || printf '%s\n' "$MC_MOCK_MYSQL_OUTPUT"
+exit "${MC_MOCK_MYSQL_RC:-0}"

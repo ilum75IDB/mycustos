@@ -7,7 +7,8 @@
 > [!WARNING]
 > **Pre-release — not usable yet.** mycustos is a ground-up re-engineering of a Bash backup toolkit
 > that has been running on enterprise MySQL servers. The new code base is being written in phases
-> (see [Roadmap](#roadmap)). Today only `mycustos help` and `mycustos version` work.
+> (see [Roadmap](#roadmap)). Today only the read-only commands work (`preflight`,
+> `check-config`, `config show`, `help`, `version`): mycustos cannot run a backup yet.
 > Do not use it to protect real data until a release says otherwise.
 
 ## Why
@@ -64,10 +65,11 @@ bin/mycustos version
 
 ```text
 mycustos backup [--type full|incr] [--dry-run]   # planned
-mycustos preflight [--test-connection]           # planned
-mycustos check-config                            # planned
+mycustos preflight [--test-connection]           # available
+mycustos check-config                            # available
 mycustos status                                  # planned
-mycustos config show | migrate FILE              # planned
+mycustos config show                             # available
+mycustos config migrate FILE                     # planned
 mycustos version [--short]                       # available
 mycustos help [command]                          # available
 
@@ -79,6 +81,45 @@ Global options (before the command):
 ```
 
 `mycustos help` always shows which commands are already implemented in the version you are running.
+
+### preflight
+
+`mycustos preflight` checks what a backup needs, without changing anything: the
+configuration, the authentication, `data_dir`, `logs_dir` and the `config/`
+directory, the free space, and the commands required by the configured engine,
+compression and archive backend. Each check prints `OK`, `WARN` or `FAIL`, with a
+hint when there is something to change. `--test-connection` also connects to the
+MySQL server and, with `engine=auto`, shows which engine the server edition selects.
+
+Exit code `0` when nothing failed (warnings allowed), `3` for a configuration
+problem, `4` for an environment problem.
+
+### check-config
+
+`mycustos check-config` validates `mycustos.conf` and lists **every** problem in one
+run, each with its origin (`file:line`, `env MYCUSTOS_<KEY>` or `default`): unknown
+or duplicate keys, wrong types and ranges, forbidden expansions, an unsupported
+`config_schema`, and rules between keys (e.g. `compress_level` at most 9 with `gzip`,
+`backup_type=incr` only with `engine=mysqlbackup`). Valid settings that are probably
+not what was meant are shown as warnings. It never touches the filesystem or the
+server: that is the job of `preflight`.
+
+Exit code `0` when valid (warnings allowed), `3` when invalid.
+
+### config show
+
+`mycustos config show` prints the effective configuration, one line per key, with
+the origin of each value:
+
+```text
+compress=gzip                             # /srv/mycustos/config/mycustos.conf:3
+compress_level=7                          # default
+retention_days=3                          # env MYCUSTOS_RETENTION_DAYS
+```
+
+Values are shown after the `${MYCUSTOS_*}` expansions. To parse a line, split it on
+the first `=` and on the last `  # `. The output is not meant to be used as
+`mycustos.conf`. The content of the credentials file is never shown.
 
 ## Configuration
 
@@ -93,8 +134,22 @@ which documents every key.
   (e.g. `MYCUSTOS_RETENTION_DAYS=3`) > file > built-in default.
 - `config_schema` versions the file format: it changes only when the format does.
 
-MySQL credentials go in a separate option file, `config/backup-credentials.conf`
-(permissions `600`), see [`config/backup-credentials.conf.example`](config/backup-credentials.conf.example).
+### Authentication
+
+Credentials never appear on a command line or in a log: mycustos passes only the
+path of an option file or the name of a login path. `auth_method` selects how:
+
+| `auth_method` | Credentials from | Client option |
+|---|---|---|
+| `cnf` | `auth_cnf`, a MySQL option file with a `[client]` section, permissions `600` (see [`config/backup-credentials.conf.example`](config/backup-credentials.conf.example)) | `--defaults-file=<auth_cnf>` |
+| `login-path` | `auth_login_path`, created with `mysql_config_editor set --login-path=...` | `--login-path=<name>` |
+| `auto` (default) | `cnf` when `auth_cnf` exists, otherwise `login-path` | |
+
+With `cnf` the client reads that file only: `--defaults-file` skips `/etc/my.cnf`
+and `~/.my.cnf`, and `~/.mylogin.cnf` is replaced by an empty private file for the
+run, so no credential is mixed in from elsewhere. An `auth_cnf` that exists but is
+unusable (unreadable, no `[client]` section) is an error, also with `auto`: mycustos
+does not silently fall back to the login path. Permissions wider than `600` give a warning.
 
 ## Exit codes
 

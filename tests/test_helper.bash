@@ -17,6 +17,7 @@ mc_test_load_core() {
   source "$MYCUSTOS_MODULES/core/common.sh"
   source "$MYCUSTOS_MODULES/core/log.sh"
   source "$MYCUSTOS_MODULES/core/config.sh"
+  source "$MYCUSTOS_MODULES/core/auth.sh"
 }
 
 # Writes the given lines to <base>/config/mycustos.conf.
