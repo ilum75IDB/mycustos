@@ -16,7 +16,7 @@ if (( BASH_VERSINFO[0] < 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] < 2) ))
 fi
 
 # shellcheck disable=SC2034  # used by the command modules
-readonly MYCUSTOS_VERSION="0.1.0"
+readonly MYCUSTOS_VERSION="0.2.0"
 
 # Works through symlinks (e.g. /usr/local/bin/mycustos -> <base>/bin/mycustos).
 mc_base=$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")/.." && pwd -P) || {

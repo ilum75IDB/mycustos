@@ -7,7 +7,8 @@
 > [!WARNING]
 > **Pre-release — not usable yet.** mycustos is a ground-up re-engineering of a Bash backup toolkit
 > that has been running on enterprise MySQL servers. The new code base is being written in phases
-> (see [Roadmap](#roadmap)). Today only `mycustos help` and `mycustos version` work.
+> (see [Roadmap](#roadmap)). Today only the read-only commands work (`preflight`,
+> `check-config`, `config show`, `help`, `version`): mycustos cannot run a backup yet.
 > Do not use it to protect real data until a release says otherwise.
 
 ## Why

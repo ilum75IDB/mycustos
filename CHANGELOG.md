@@ -6,6 +6,8 @@ and the project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-23
+
 ### Added
 
 - `core/auth.sh`: choice of the MySQL authentication (`cnf`, `login-path`, `auto`),
@@ -42,5 +44,6 @@ and the project follows [Semantic Versioning](https://semver.org/).
 - `config/mycustos.conf.example` and `config/backup-credentials.conf.example`.
 - `SECURITY.md` and `CONTRIBUTING.md`.
 
-[Unreleased]: https://github.com/ilum75IDB/mycustos/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ilum75IDB/mycustos/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ilum75IDB/mycustos/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ilum75IDB/mycustos/releases/tag/v0.1.0
