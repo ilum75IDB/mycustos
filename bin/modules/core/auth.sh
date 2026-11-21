@@ -52,10 +52,10 @@ mc_auth_select() {
       elif [ -n "${MC_CONF[auth_login_path]}" ]; then
         _mc_auth_use_login_path
       else
-        MC_AUTH_ERRORS+=("auth_method=auto: $cnf not found and auth_login_path is empty")
+        MC_AUTH_ERRORS+=("$(mc_t auth.auto_nothing "$cnf")")
       fi ;;
     *)
-      MC_AUTH_ERRORS+=("auth_method: invalid value: $method") ;;
+      MC_AUTH_ERRORS+=("$(mc_t auth.invalid_method "$method")") ;;
   esac
   [ ${#MC_AUTH_ERRORS[@]} -eq 0 ]
 }
@@ -107,7 +107,7 @@ mc_auth_print_findings() {
   local e
   # Bash < 4.4 with "set -u" treats "${empty[@]}" as unbound.
   if [ ${#MC_AUTH_WARNINGS[@]} -gt 0 ]; then
-    for e in "${MC_AUTH_WARNINGS[@]}"; do printf 'mycustos: auth: warning: %s\n' "$e" >&2; done
+    for e in "${MC_AUTH_WARNINGS[@]}"; do printf 'mycustos: auth: %s\n' "$(mc_t core.warning "$e")" >&2; done
   fi
   if [ ${#MC_AUTH_ERRORS[@]} -gt 0 ]; then
     for e in "${MC_AUTH_ERRORS[@]}"; do printf 'mycustos: auth: %s\n' "$e" >&2; done
@@ -120,12 +120,12 @@ mc_auth_prepare() {
   [ -z "$MC_AUTH_EMPTY_LOGIN" ] || return 0
   local dir
   dir=$(umask 077 && mktemp -d "${TMPDIR:-/tmp}/mycustos.XXXXXX") || {
-    printf 'mycustos: cannot create a temporary directory\n' >&2
+    printf 'mycustos: %s\n' "$(mc_t core.tmpdir)" >&2
     return 1
   }
   (umask 077 && : > "$dir/empty-mylogin.cnf") || {
     rmdir -- "$dir" 2>/dev/null
-    printf 'mycustos: cannot create %s\n' "$dir/empty-mylogin.cnf" >&2
+    printf 'mycustos: %s\n' "$(mc_t core.cannot_create "$dir/empty-mylogin.cnf")" >&2
     return 1
   }
   MC_AUTH_EMPTY_LOGIN=$dir/empty-mylogin.cnf
@@ -136,48 +136,48 @@ mc_auth_prepare() {
 _mc_auth_use_cnf() {
   local cnf=$1 mode
   if [ ! -e "$cnf" ]; then
-    MC_AUTH_ERRORS+=("auth_cnf: file not found: $cnf")
+    MC_AUTH_ERRORS+=("auth_cnf: $(mc_t auth.cnf_not_found "$cnf")")
     return 1
   fi
   if [ ! -f "$cnf" ] || [ ! -r "$cnf" ]; then
-    MC_AUTH_ERRORS+=("auth_cnf: not a readable file: $cnf")
+    MC_AUTH_ERRORS+=("auth_cnf: $(mc_t auth.cnf_not_readable "$cnf")")
     return 1
   fi
   if ! grep -Eq '^[[:space:]]*\[client\][[:space:]]*$' "$cnf"; then
-    MC_AUTH_ERRORS+=("auth_cnf: no [client] section in $cnf")
+    MC_AUTH_ERRORS+=("auth_cnf: $(mc_t auth.cnf_no_client "$cnf")")
     return 1
   fi
   # ls -l is the portable way to read the mode (GNU and BSD stat differ).
   mode=$(ls -ld -- "$cnf" 2>/dev/null) && mode=${mode:4:6}
   if [ "$mode" != '------' ]; then
-    MC_AUTH_WARNINGS+=("auth_cnf: permissions wider than 0600 on $cnf (run: chmod 600)")
+    MC_AUTH_WARNINGS+=("auth_cnf: $(mc_t auth.cnf_perms "$cnf" "chmod 600 $cnf")")
   fi
   MC_AUTH_METHOD=cnf
   MC_AUTH_OPTS=("--defaults-file=$cnf")
-  MC_AUTH_DESC="option file $cnf"
+  MC_AUTH_DESC=$(mc_t auth.desc_cnf "$cnf")
 }
 
 _mc_auth_use_login_path() {
   local name=${MC_CONF[auth_login_path]}
   local file=${MYSQL_TEST_LOGIN_FILE:-${HOME:-}/.mylogin.cnf}
   if [ -z "$name" ]; then
-    MC_AUTH_ERRORS+=("auth_login_path: required with auth_method=login-path")
+    MC_AUTH_ERRORS+=("auth_login_path: $(mc_t cfg.login_path_required)")
     return 1
   fi
   if [ ! -r "$file" ]; then
-    MC_AUTH_ERRORS+=("auth_login_path: login file not found or not readable: $file")
+    MC_AUTH_ERRORS+=("auth_login_path: $(mc_t auth.lp_file "$file")")
     return 1
   fi
   # mysql_config_editor prints nothing for an unknown login path.
   if command -v mysql_config_editor >/dev/null 2>&1; then
     if [ -z "$(mysql_config_editor print --login-path="$name" 2>/dev/null)" ]; then
-      MC_AUTH_ERRORS+=("auth_login_path: login path '$name' not defined in $file")
+      MC_AUTH_ERRORS+=("auth_login_path: $(mc_t auth.lp_undefined "$name" "$file")")
       return 1
     fi
   else
-    MC_AUTH_WARNINGS+=("auth_login_path: mysql_config_editor not found, '$name' not verified")
+    MC_AUTH_WARNINGS+=("auth_login_path: $(mc_t auth.lp_unverified "$name")")
   fi
   MC_AUTH_METHOD=login-path
   MC_AUTH_OPTS=("--login-path=$name")
-  MC_AUTH_DESC="login path $name"
+  MC_AUTH_DESC=$(mc_t auth.desc_lp "$name")
 }

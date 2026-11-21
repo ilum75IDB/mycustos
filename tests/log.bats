@@ -55,10 +55,10 @@ setup() {
 
 @test "die records the error in the run log" {
   mc_log_open "$BASE/logs/run.log"
-  run die "$MC_EX_BACKUP" 'engine failed'
+  run die "$MC_EX_BACKUP" core.cannot_load /x/engine.sh
   [ "$status" -eq 6 ]
-  [ "$output" = 'mycustos: engine failed' ]
-  grep -q 'ERROR engine failed$' "$BASE/logs/run.log"
+  [ "$output" = 'mycustos: cannot load /x/engine.sh' ]
+  grep -q 'ERROR cannot load /x/engine.sh$' "$BASE/logs/run.log"
 }
 
 @test "mc_log_open fails on an unwritable path" {

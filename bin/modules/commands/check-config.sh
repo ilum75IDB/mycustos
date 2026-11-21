@@ -10,25 +10,25 @@
 # Exit codes: 0 valid (warnings allowed), 3 invalid.
 
 cmd_check_config() {
-  [ $# -eq 0 ] || die_usage "check-config: unknown argument: $1"
+  [ $# -eq 0 ] || die_usage cli.cmd_unknown_argument check-config "$1"
 
   local rc=0 e w
   local -a warnings=()
   mc_config_load || rc=$?
   msg "mycustos check-config - $MC_CONFIG_FILE"
-  msg "config_schema supported: $MC_CONFIG_SCHEMA_VERSION (mycustos $MYCUSTOS_VERSION)"
+  say cc.schema_supported "$MC_CONFIG_SCHEMA_VERSION" "$MYCUSTOS_VERSION"
 
   if [ "$rc" -eq 0 ]; then
     _cc_warnings
     if [ ${#warnings[@]} -gt 0 ]; then
       for w in "${warnings[@]}"; do msg "  WARN  $w"; done
     fi
-    msg "Result: valid, ${#warnings[@]} warning(s)"
+    say cc.result_valid "${#warnings[@]}"
     return "$MC_EX_OK"
   fi
 
   for e in "${MC_CONFIG_ERRORS[@]}"; do msg "  ERROR $e"; done
-  msg "Result: invalid, ${#MC_CONFIG_ERRORS[@]} error(s)"
+  say cc.result_invalid "${#MC_CONFIG_ERRORS[@]}"
   return "$MC_EX_CONFIG"
 }
 
@@ -36,15 +36,20 @@ cmd_check_config() {
 # (local to cmd_check_config).
 _cc_warnings() {
   if [ "${MC_CONF[backup_type]}" = incr ] && [ "${MC_CONF[engine]}" = auto ]; then
-    warnings+=("${MC_CONF_ORIGIN[backup_type]}: backup_type=incr with engine=auto works only when the server edition selects mysqlbackup (MySQL Enterprise)")
+    warnings+=("${MC_CONF_ORIGIN[backup_type]}: $(mc_t cc.warn_incr_auto)")
   fi
   if [ "${MC_CONF[auth_method]}" = cnf ] && [ -n "${MC_CONF[auth_login_path]}" ]; then
-    warnings+=("${MC_CONF_ORIGIN[auth_login_path]}: auth_login_path is ignored with auth_method=cnf")
+    warnings+=("${MC_CONF_ORIGIN[auth_login_path]}: $(mc_t cc.warn_login_path_ignored)")
   fi
   if [ "${MC_CONF[auth_method]}" = login-path ] && [ "${MC_CONF_ORIGIN[auth_cnf]}" != default ]; then
-    warnings+=("${MC_CONF_ORIGIN[auth_cnf]}: auth_cnf is ignored with auth_method=login-path")
+    warnings+=("${MC_CONF_ORIGIN[auth_cnf]}: $(mc_t cc.warn_cnf_ignored)")
   fi
   if [ "${MC_CONF[data_dir]}" = "${MC_CONF[logs_dir]}" ]; then
-    warnings+=("${MC_CONF_ORIGIN[logs_dir]}: logs_dir is the same directory as data_dir")
+    warnings+=("${MC_CONF_ORIGIN[logs_dir]}: $(mc_t cc.warn_same_dirs)")
+  fi
+  # The language exists only if its catalog does: otherwise English is used.
+  if [ -n "${MC_CONF[language]}" ] &&
+     ! mc_i18n_resolve "${MC_CONF[language]}" >/dev/null; then
+    warnings+=("${MC_CONF_ORIGIN[language]}: $(mc_t cc.warn_language_missing "${MC_CONF[language]}" "$(mc_i18n_list)")")
   fi
 }
