@@ -97,7 +97,7 @@ line() {
 @test "missing or unknown sub-command: exit 2" {
   run "$MYCUSTOS" --home "$BASE" config
   [ "$status" -eq 2 ]
-  [[ "$output" == *"config: missing sub-command (show or migrate)"* ]]
+  [[ "$output" == *"config: missing sub-command (show, migrate)"* ]]
   run "$MYCUSTOS" --home "$BASE" config list
   [ "$status" -eq 2 ]
   [[ "$output" == *"config: unknown sub-command: list"* ]]

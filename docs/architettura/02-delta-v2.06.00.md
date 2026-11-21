@@ -1,7 +1,7 @@
 # Delta v2.00.14 → v2.06.00 — cosa entra in mycustos
 
 **Data**: 2026-11-21
-**Stato**: proposta (in attesa di approvazione)
+**Stato**: approvata (2026-11-21), con codice di uscita 9. Aggiunti a F2 il multilingua (#13) e il comando `setup` (#11)
 **Riferimento**: [`01-proposta-reingegnerizzazione.md`](01-proposta-reingegnerizzazione.md) (approvata il 2026-10-21, basata sulla v2.00.14)
 
 La procedura monolitica originale è passata dalla v2.00.14 (main da 1.950 righe + libreria v1.6) alla v2.06.00 (un unico script da circa 3.100 righe + preflight). La libreria v1.6 è stata assorbita nello script. Questo documento elenca le novità **funzionali** che mycustos deve recepire, quelle da **non** portare e l'impatto sulla roadmap.

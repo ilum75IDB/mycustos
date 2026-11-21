@@ -17,14 +17,14 @@ cmd_config() {
   [ $# -eq 0 ] || shift
   case "$sub" in
     show)
-      [ $# -eq 0 ] || die_usage "config show: unknown argument: $1"
+      [ $# -eq 0 ] || die_usage cli.cmd_unknown_argument 'config show' "$1"
       _mc_config_show ;;
     migrate)
-      die "$MC_EX_UNAVAILABLE" "config migrate is not implemented yet in mycustos $MYCUSTOS_VERSION" ;;
+      die "$MC_EX_UNAVAILABLE" cli.not_implemented 'config migrate' "$MYCUSTOS_VERSION" ;;
     '')
-      die_usage 'config: missing sub-command (show or migrate)' ;;
+      die_usage cli.missing_subcommand config 'show, migrate' ;;
     *)
-      die_usage "config: unknown sub-command: $sub" ;;
+      die_usage cli.unknown_subcommand config "$sub" ;;
   esac
 }
 

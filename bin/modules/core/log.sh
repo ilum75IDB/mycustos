@@ -73,7 +73,7 @@ mc_log_path() {
 mc_log_open() {
   local file=$1
   if ! { : >> "$file"; } 2>/dev/null; then
-    printf 'mycustos: cannot write the log file: %s\n' "$file" >&2
+    printf 'mycustos: %s\n' "$(mc_t log.cannot_write "$file")" >&2
     return 1
   fi
   MC_LOG_FILE=$file

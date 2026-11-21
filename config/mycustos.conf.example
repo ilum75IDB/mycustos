@@ -55,3 +55,8 @@ retention_days=7
 # Where backups and logs go. Defaults: <home>/data and <home>/logs.
 data_dir=${MYCUSTOS_HOME}/data
 logs_dir=${MYCUSTOS_HOME}/logs
+
+# Language of the terminal messages: en, it, es, de, fr, ro, ... (the catalogs
+# in bin/modules/locale/). Empty = the system locale. Logs, summary and flags
+# are always in English.
+language=

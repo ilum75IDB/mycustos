@@ -14,6 +14,7 @@ mc_test_load_core() {
   MYCUSTOS_HOME="$BASE"
   MC_OPT_CONFIG=''
   source "$MYCUSTOS_MODULES/core/errors.sh"
+  source "$MYCUSTOS_MODULES/core/i18n.sh"
   source "$MYCUSTOS_MODULES/core/common.sh"
   source "$MYCUSTOS_MODULES/core/log.sh"
   source "$MYCUSTOS_MODULES/core/config.sh"

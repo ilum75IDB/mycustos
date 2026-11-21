@@ -6,6 +6,14 @@ and the project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Localised terminal messages: English, Italian, Spanish, German, French and
+  Romanian, in catalogs `bin/modules/locale/<code>.msg` (read, never sourced).
+  Language from `--lang`, `MYCUSTOS_LANGUAGE`, the new key `language=` or the
+  system locale, falling back to English. Adding a language means adding a file.
+  Logs, summary, flags, statuses and configuration keys stay in English (#13).
+
 ## [0.2.0] - 2026-10-23
 
 ### Added

@@ -31,6 +31,8 @@ mc_core_failed() {
 }
 # shellcheck source=bin/modules/core/errors.sh
 source "$MYCUSTOS_MODULES/core/errors.sh" || mc_core_failed errors
+# shellcheck source=bin/modules/core/i18n.sh
+source "$MYCUSTOS_MODULES/core/i18n.sh" || mc_core_failed i18n
 # shellcheck source=bin/modules/core/common.sh
 source "$MYCUSTOS_MODULES/core/common.sh" || mc_core_failed common
 # shellcheck source=bin/modules/core/log.sh
@@ -41,24 +43,37 @@ source "$MYCUSTOS_MODULES/core/config.sh" || mc_core_failed config
 source "$MYCUSTOS_MODULES/core/auth.sh" || mc_core_failed auth
 unset -f mc_core_failed
 
+# Language of the errors on the options themselves: environment and locale
+# only, silently. The final choice is made once the options are known.
+mc_i18n_init --quiet-early
+
 # Global options, accepted before the command.
 MC_OPT_CONFIG=''
 MC_OPT_HOME=''
+MC_OPT_LANG=''
 while [ $# -gt 0 ]; do
   case "$1" in
     -h|--help)    set -- help "${@:2}"; break ;;
     -V|--version) set -- version "${@:2}"; break ;;
     -q|--quiet)   MC_VERBOSITY=0 ;;
     -v|--verbose) MC_VERBOSITY=2 ;;
-    --config|--home)
-      if [ $# -lt 2 ] || [ -z "$2" ]; then die_usage "option $1 requires a value"; fi
-      if [ "$1" = --config ]; then MC_OPT_CONFIG=$2; else MC_OPT_HOME=$2; fi
+    --config|--home|--lang)
+      if [ $# -lt 2 ] || [ -z "$2" ]; then die_usage cli.option_needs_value "$1"; fi
+      case "$1" in
+        --config) MC_OPT_CONFIG=$2 ;;
+        --home)   MC_OPT_HOME=$2 ;;
+        --lang)   MC_OPT_LANG=$2 ;;
+      esac
       shift ;;
-    --config=*|--home=*)
-      [ -n "${1#*=}" ] || die_usage "option ${1%%=*} requires a value"
-      if [[ "$1" == --config=* ]]; then MC_OPT_CONFIG=${1#*=}; else MC_OPT_HOME=${1#*=}; fi ;;
+    --config=*|--home=*|--lang=*)
+      [ -n "${1#*=}" ] || die_usage cli.option_needs_value "${1%%=*}"
+      case "$1" in
+        --config=*) MC_OPT_CONFIG=${1#*=} ;;
+        --home=*)   MC_OPT_HOME=${1#*=} ;;
+        --lang=*)   MC_OPT_LANG=${1#*=} ;;
+      esac ;;
     --) shift; break ;;
-    -*) die_usage "unknown option: $1" ;;
+    -*) die_usage cli.unknown_option "$1" ;;
     *)  break ;;
   esac
   shift
@@ -68,15 +83,18 @@ done
 # Base of config/, data/ and logs/: the installation itself, unless --home says otherwise.
 if [ -n "$MC_OPT_HOME" ]; then
   MYCUSTOS_HOME=$(cd -- "$MC_OPT_HOME" 2>/dev/null && pwd -P) ||
-    die "$MC_EX_USAGE" "--home: not a directory: $MC_OPT_HOME"
+    die "$MC_EX_USAGE" cli.home_not_dir "$MC_OPT_HOME"
 else
   MYCUSTOS_HOME=$mc_base
 fi
 readonly MYCUSTOS_HOME
 unset mc_base
 
+# Final language: --lang > MYCUSTOS_LANGUAGE > language= in mycustos.conf > locale.
+mc_i18n_init --lang "$MC_OPT_LANG"
+
 cmd=$1
 shift
-mc_is_known_command "$cmd" || die_usage "unknown command: $cmd"
+mc_is_known_command "$cmd" || die_usage cli.unknown_command "$cmd"
 mc_load_command "$cmd"
 "cmd_${cmd//-/_}" "$@"

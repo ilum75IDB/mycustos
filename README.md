@@ -76,6 +76,7 @@ mycustos help [command]                          # available
 Global options (before the command):
   --config FILE   configuration file (default: <base>/config/mycustos.conf)
   --home DIR      base of config/, data/ and logs/ (default: the installation)
+  --lang CODE     language of the messages: en, it, es, de, fr, ro, ...
   -q, --quiet     warnings and errors only
   -v, --verbose   debug messages too
 ```
@@ -120,6 +121,30 @@ retention_days=3                          # env MYCUSTOS_RETENTION_DAYS
 Values are shown after the `${MYCUSTOS_*}` expansions. To parse a line, split it on
 the first `=` and on the last `  # `. The output is not meant to be used as
 `mycustos.conf`. The content of the credentials file is never shown.
+
+## Languages
+
+The messages meant for a person at the terminal (help, preflight, check-config,
+errors and warnings) are available in **English, Italian, Spanish, German, French
+and Romanian**. The language is chosen, first match wins, by:
+
+1. `--lang CODE` (e.g. `mycustos --lang it preflight`);
+2. the environment variable `MYCUSTOS_LANGUAGE`;
+3. `language=` in `mycustos.conf`;
+4. the system locale (`LC_ALL`, `LC_MESSAGES`, `LANG`: `it_IT.UTF-8` selects `it`);
+5. English.
+
+A language without a catalog falls back to English (with a warning when it was
+asked explicitly). `mycustos help` lists the available languages.
+
+**What always stays in English**: log files, the backup summary, flag names,
+execution statuses, the `OK`/`WARN`/`FAIL`/`ERROR` tags, the output meant for
+scripts and the configuration keys. Monitoring reads them, so they must not change
+from one server to another.
+
+Translations other than English are marked *needs native review* in their catalog
+until a native speaker has checked them. Adding a language is adding one file: see
+[CONTRIBUTING.md](CONTRIBUTING.md#adding-a-language).
 
 ## Configuration
 

@@ -6,44 +6,50 @@
 
 mc_command_summary() {
   case "$1" in
-    backup)       echo 'Run a FULL or INCR backup (--type full|incr, --dry-run)' ;;
-    preflight)    echo 'Check prerequisites and suggest config changes (read-only)' ;;
-    check-config) echo 'Validate mycustos.conf, reporting every problem (read-only)' ;;
-    status)       echo 'Show the outcome of the last run' ;;
-    config)       echo 'Show the effective configuration or migrate a legacy file' ;;
-    version)      echo 'Show version and attribution' ;;
-    help)         echo 'Show this help, or the help of a command' ;;
+    backup)       mc_t help.cmd.backup ;;
+    preflight)    mc_t help.cmd.preflight ;;
+    check-config) mc_t help.cmd.check_config ;;
+    status)       mc_t help.cmd.status ;;
+    config)       mc_t help.cmd.config ;;
+    version)      mc_t help.cmd.version ;;
+    help)         mc_t help.cmd.help ;;
   esac
 }
 
 cmd_help() {
   if [ $# -gt 0 ]; then
-    mc_is_known_command "$1" || die_usage "unknown command: $1"
+    mc_is_known_command "$1" || die_usage cli.unknown_command "$1"
     msg "mycustos $1 - $(mc_command_summary "$1")"
-    mc_is_implemented "$1" || msg "Not implemented yet in mycustos $MYCUSTOS_VERSION."
+    mc_is_implemented "$1" || say help.not_implemented "$MYCUSTOS_VERSION"
     return "$MC_EX_OK"
   fi
 
   local c note
-  msg "mycustos $MYCUSTOS_VERSION - standardized MySQL backup runner"
+  say help.title "$MYCUSTOS_VERSION"
   msg ''
-  msg 'Usage: mycustos <command> [options]'
+  say help.usage
   msg ''
-  msg 'Commands:'
+  say help.commands
   for c in "${MC_COMMANDS[@]}"; do
     note=''
-    mc_is_implemented "$c" || note=' (not implemented yet)'
+    mc_is_implemented "$c" || note=" $(mc_t help.flag_not_implemented)"
     printf '  %-13s %s%s\n' "$c" "$(mc_command_summary "$c")" "$note"
   done
   msg ''
-  msg 'Global options:'
-  msg '  --config FILE  Configuration file (default: <home>/config/mycustos.conf)'
-  msg '  --home DIR     Base of config/, data/ and logs/ (default: the installation)'
-  msg '  -q, --quiet    Show only warnings and errors'
-  msg '  -v, --verbose  Show debug messages too'
-  msg '  -h, --help     Same as "mycustos help"'
-  msg '  -V, --version  Same as "mycustos version"'
+  say help.global_options
+  _mc_help_option '--config FILE' help.opt.config
+  _mc_help_option '--home DIR'    help.opt.home
+  _mc_help_option '--lang CODE'   help.opt.lang
+  _mc_help_option '-q, --quiet'   help.opt.quiet
+  _mc_help_option '-v, --verbose' help.opt.verbose
+  _mc_help_option '-h, --help'    help.opt.help
+  _mc_help_option '-V, --version' help.opt.version
   msg ''
-  msg "Installation: $MYCUSTOS_HOME"
+  say help.languages "$(mc_i18n_list)" "$MC_LANG"
+  say help.installation "$MYCUSTOS_HOME"
   return "$MC_EX_OK"
+}
+
+_mc_help_option() {
+  printf '  %-14s %s\n' "$1" "$(mc_t "$2")"
 }
