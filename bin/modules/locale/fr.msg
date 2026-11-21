@@ -64,6 +64,7 @@ cfg.name=doit commencer par une lettre ou un chiffre et ne contenir que des lett
 cfg.dblist=doit être ALL ou une liste de bases séparées par des virgules, sans espaces (trouvé '%s')
 cfg.path=doit être un chemin absolu autre que / (trouvé '%s')
 cfg.language=doit être un code de langue comme en, it ou pt_BR (trouvé '%s')
+cfg.uuid=doit être un UUID comme 3e11fa47-71ca-11e1-9e33-c80aa9429562 (trouvé '%s')
 cfg.gzip_level=doit être entre 1 et 9 avec compress=gzip (trouvé '%s')
 cfg.incr_engine=incr n'est pris en charge qu'avec engine=mysqlbackup (trouvé engine=%s)
 cfg.login_path_required=obligatoire avec auth_method=login-path
@@ -123,3 +124,12 @@ pf.engine_selected=moteur : auto sélectionne %s pour ce serveur
 pf.cmd_found=commande %s : %s
 pf.cmd_missing=commande %s : introuvable dans le PATH
 pf.needed_for=nécessaire pour %s
+
+# --- target identity ---------------------------------------------------------------
+tgt.version_failed=impossible de lire la version et l'édition du serveur
+tgt.metadata_failed=impossible de lire les métadonnées de l'instance (hostname, port, socket, datadir, %s)
+tgt.metadata_missing=métadonnées de l'instance incomplètes : %s est vide
+tgt.metadata_invalid=valeur de %s invalide renvoyée par le serveur : %s
+tgt.mismatch=%s : attendu %s, le serveur indique %s
+tgt.uuid_on_mariadb=expect_server_uuid est défini, mais le serveur est MariaDB, qui n'a pas de server_uuid : utilisez expect_server_id
+tgt.id_on_mysql=expect_server_id est défini, mais le serveur est MySQL : utilisez expect_server_uuid

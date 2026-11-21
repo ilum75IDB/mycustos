@@ -16,6 +16,7 @@ readonly MC_EX_LOCKED=5        # another run holds the lock
 readonly MC_EX_BACKUP=6        # backup or packaging failed: nothing usable was produced
 readonly MC_EX_ARCHIVE=7       # local backup OK, archiving failed
 readonly MC_EX_TIMEOUT=8       # a phase exceeded its time limit
+readonly MC_EX_TARGET=9        # wrong or unsupported target: identity or topology rejected
 readonly MC_EX_UNAVAILABLE=69  # command not implemented in this version
 
 # Prints the meaning of an exit code (used by the summary and by "status").
@@ -30,6 +31,7 @@ mc_exit_describe() {
     6)  echo 'backup failed' ;;
     7)  echo 'archiving failed (local backup available)' ;;
     8)  echo 'timeout' ;;
+    9)  echo 'wrong or unsupported target' ;;
     69) echo 'not implemented in this version' ;;
     *)  echo 'unknown exit code' ;;
   esac
