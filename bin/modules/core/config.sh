@@ -40,7 +40,8 @@ MYCUSTOS_DATA=''
 MYCUSTOS_LOGS=''
 
 # _mc_schema KEY TYPE DEFAULT
-# Types: int:MIN:MAX, enum:A,B,..., name, optname, dblist, path, optpath, optlang, schema.
+# Types: int:MIN:MAX, optint:MIN:MAX, enum:A,B,..., name, optname, dblist, path,
+# optpath, optlang, optuuid, schema. The "opt" types also accept an empty value.
 _mc_schema() {
   MC_CONFIG_KEYS+=("$1")
   MC_SCHEMA_TYPE[$1]=$2
@@ -66,6 +67,12 @@ _mc_schema() {
   _mc_schema data_dir        path                          '${MYCUSTOS_HOME}/data'
   _mc_schema logs_dir        path                          '${MYCUSTOS_HOME}/logs'
   _mc_schema language        optlang                       ''
+  # Expected identity of the instance (core/target.sh): empty = not checked.
+  _mc_schema expect_hostname    optname                    ''
+  _mc_schema expect_port        optint:1:65535             ''
+  _mc_schema expect_datadir     optpath                    ''
+  _mc_schema expect_server_uuid optuuid                    ''
+  _mc_schema expect_server_id   optint:0:4294967295        ''
 }
 
 mc_config_is_key() {
@@ -253,7 +260,8 @@ _mc_config_resolve_key() {
     return 1
   fi
   # Integers are stored in decimal form: "07" becomes 7, never an octal number.
-  [[ "${MC_SCHEMA_TYPE[$key]}" == int:* ]] && value=$((10#$value))
+  [[ "${MC_SCHEMA_TYPE[$key]}" == int:* || ( "${MC_SCHEMA_TYPE[$key]}" == optint:* && -n "$value" ) ]] &&
+    value=$((10#$value))
   MC_CONF[$key]=$value
 }
 
@@ -291,11 +299,15 @@ _mc_config_check() {
         say cfg.schema_unsupported "$v" "$MC_CONFIG_SCHEMA_VERSION"
       fi
       return 1 ;;
+    optint:*)
+      [ -z "$v" ] && return 0
+      type=${type#opt}
+      ;&
     int:*)
       spec=${type#int:}
       min=${spec%%:*}
       max=${spec#*:}
-      [[ "$v" =~ ^[0-9]{1,9}$ ]] && (( 10#$v >= min && 10#$v <= max )) && return 0
+      [[ "$v" =~ ^[0-9]{1,10}$ ]] && (( 10#$v >= min && 10#$v <= max )) && return 0
       say cfg.int_range "$min" "$max" "$v"
       return 1 ;;
     enum:*)
@@ -320,6 +332,10 @@ _mc_config_check() {
     path)
       [[ "$v" == /* && ! "$v" =~ ^/+$ && "$v" != *$'\n'* ]] && return 0
       say cfg.path "$v"
+      return 1 ;;
+    optuuid)
+      [[ -z "$v" || "$v" =~ ^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$ ]] && return 0
+      say cfg.uuid "$v"
       return 1 ;;
     optlang)
       [[ -z "$v" || "$v" =~ ^[A-Za-z]{2,3}([_-][A-Za-z]{2})?$ ]] && return 0

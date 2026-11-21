@@ -36,8 +36,23 @@ auth_method=auto
 auth_cnf=${MYCUSTOS_CONFIG}/backup-credentials.conf
 auth_login_path=
 
-# MySQL socket; empty = the client default.
+# MySQL socket; empty = the client default. When set, it must also be the
+# socket of the instance reached (SELECT @@socket), or the backup is refused.
 mysql_socket=
+
+# Expected identity of the instance. Empty = not checked. Strongly recommended
+# on a host with more than one instance: a backup of the wrong instance is
+# refused before anything is written. "mycustos inspect" shows the values.
+#   expect_hostname     SELECT @@hostname (case is ignored)
+#   expect_port         SELECT @@port
+#   expect_datadir      SELECT @@datadir (a trailing / is ignored)
+#   expect_server_uuid  SELECT @@server_uuid  (MySQL only)
+#   expect_server_id    SELECT @@server_id    (MariaDB only, which has no UUID)
+expect_hostname=
+expect_port=
+expect_datadir=
+expect_server_uuid=
+expect_server_id=
 
 # gzip | zstd, and the level (gzip 1-9, zstd 1-19)
 compress=zstd

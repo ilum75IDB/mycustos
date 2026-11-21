@@ -64,6 +64,7 @@ cfg.name=trebuie să înceapă cu o literă sau o cifră și să conțină doar 
 cfg.dblist=trebuie să fie ALL sau o listă de baze de date separate prin virgulă, fără spații (găsit '%s')
 cfg.path=trebuie să fie o cale absolută diferită de / (găsit '%s')
 cfg.language=trebuie să fie un cod de limbă precum en, it sau pt_BR (găsit '%s')
+cfg.uuid=trebuie să fie un UUID precum 3e11fa47-71ca-11e1-9e33-c80aa9429562 (găsit '%s')
 cfg.gzip_level=trebuie să fie între 1 și 9 cu compress=gzip (găsit '%s')
 cfg.incr_engine=incr este suportat doar cu engine=mysqlbackup (găsit engine=%s)
 cfg.login_path_required=obligatoriu cu auth_method=login-path
@@ -123,3 +124,12 @@ pf.engine_selected=motor: auto selectează %s pentru acest server
 pf.cmd_found=comanda %s: %s
 pf.cmd_missing=comanda %s: nu a fost găsită în PATH
 pf.needed_for=necesară pentru %s
+
+# --- target identity ---------------------------------------------------------------
+tgt.version_failed=nu se pot citi versiunea și ediția serverului
+tgt.metadata_failed=nu se pot citi metadatele instanței (hostname, port, socket, datadir, %s)
+tgt.metadata_missing=metadate incomplete ale instanței: %s este gol
+tgt.metadata_invalid=valoare invalidă pentru %s raportată de server: %s
+tgt.mismatch=%s: se aștepta %s, serverul raportează %s
+tgt.uuid_on_mariadb=expect_server_uuid este setat, dar serverul este MariaDB, care nu are server_uuid: folosiți expect_server_id
+tgt.id_on_mysql=expect_server_id este setat, dar serverul este MySQL: folosiți expect_server_uuid

@@ -13,6 +13,11 @@ and the project follows [Semantic Versioning](https://semver.org/).
   Language from `--lang`, `MYCUSTOS_LANGUAGE`, the new key `language=` or the
   system locale, falling back to English. Adding a language means adding a file.
   Logs, summary, flags, statuses and configuration keys stay in English (#13).
+- `core/target.sh`: identity of the instance reached (MySQL or MariaDB first, then
+  hostname, port, socket, datadir and server UUID or server id), compared with the
+  new optional keys `expect_hostname`, `expect_port`, `expect_datadir`,
+  `expect_server_uuid`, `expect_server_id` and with `mysql_socket` (#6).
+- Exit code `9`: wrong or unsupported target.
 
 ## [0.2.0] - 2026-10-23
 

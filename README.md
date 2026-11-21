@@ -159,6 +159,26 @@ which documents every key.
   (e.g. `MYCUSTOS_RETENTION_DAYS=3`) > file > built-in default.
 - `config_schema` versions the file format: it changes only when the format does.
 
+### Expected identity of the instance
+
+On a host with more than one instance, a successful connection does not prove
+that mycustos reached the right one. The optional `expect_*` keys describe the
+instance to protect; when one is set and the server reports something else, the
+backup is refused before anything is written:
+
+| Key | Compared with |
+|---|---|
+| `mysql_socket` | `@@socket` |
+| `expect_hostname` | `@@hostname` (case is ignored) |
+| `expect_port` | `@@port` |
+| `expect_datadir` | `@@datadir` (a trailing `/` is ignored) |
+| `expect_server_uuid` | `@@server_uuid` — MySQL only |
+| `expect_server_id` | `@@server_id` — MariaDB only, which has no server UUID |
+
+The product is detected first, from `@@version` and `@@version_comment`. An
+instance that does not report hostname, port, socket, datadir and its UUID or
+server id is always refused.
+
 ### Authentication
 
 Credentials never appear on a command line or in a log: mycustos passes only the
@@ -189,6 +209,7 @@ does not silently fall back to the login path. Permissions wider than `600` give
 | 6 | backup failed: nothing usable was produced |
 | 7 | local backup OK, archiving failed |
 | 8 | a phase exceeded its time limit |
+| 9 | wrong or unsupported target: the instance reached is not the expected one, or its topology is not supported |
 | 69 | command not implemented in this version |
 
 These values are stable: existing codes are never renumbered.
