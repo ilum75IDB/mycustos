@@ -43,6 +43,8 @@ source "$MYCUSTOS_MODULES/core/config.sh" || mc_core_failed config
 source "$MYCUSTOS_MODULES/core/auth.sh" || mc_core_failed auth
 # shellcheck source=bin/modules/core/target.sh
 source "$MYCUSTOS_MODULES/core/target.sh" || mc_core_failed target
+# shellcheck source=bin/modules/core/topology.sh
+source "$MYCUSTOS_MODULES/core/topology.sh" || mc_core_failed topology
 unset -f mc_core_failed
 
 # Language of the errors on the options themselves: environment and locale

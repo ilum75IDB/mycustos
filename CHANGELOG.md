@@ -17,6 +17,9 @@ and the project follows [Semantic Versioning](https://semver.org/).
   hostname, port, socket, datadir and server UUID or server id), compared with the
   new optional keys `expect_hostname`, `expect_port`, `expect_datadir`,
   `expect_server_uuid`, `expect_server_id` and with `mysql_socket` (#6).
+- `core/topology.sh`: role of the node. Backup only on a single instance or on
+  the Group Replication PRIMARY; a SECONDARY is skipped; Galera, an unreadable or
+  inconsistent group and an unreadable `wsrep_on` are refused (#7).
 - Exit code `9`: wrong or unsupported target.
 
 ## [0.2.0] - 2026-10-23

@@ -26,7 +26,7 @@ cat_placeholders() {
 
 # Keys referenced by the code (literal keys after the i18n functions).
 code_keys() {
-  grep -rhoE "(mc_t|mc_t_en|say|warn|die_usage|_mc_help_option +'[^']*' *|mc_tv +[A-Za-z_]+|die +\"?\\\$[A-Z_]+\"?) +[a-z][a-z0-9_]*(\.[a-z0-9_]+)+" \
+  grep -rhoE "(mc_t|mc_t_en|say|warn|die_usage|_mc_target_fail +[a-z]+|_mc_topology_(set|fail)( +[a-z]+)?|_mc_help_option +'[^']*' *|mc_tv +[A-Za-z_]+|die +\"?\\\$[A-Z_]+\"?) +[a-z][a-z0-9_]*(\.[a-z0-9_]+)+" \
     "$REPO/bin" | awk '{print $NF}' | sort -u
 }
 

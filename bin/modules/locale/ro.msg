@@ -133,3 +133,17 @@ tgt.metadata_invalid=valoare invalidă pentru %s raportată de server: %s
 tgt.mismatch=%s: se aștepta %s, serverul raportează %s
 tgt.uuid_on_mariadb=expect_server_uuid este setat, dar serverul este MariaDB, care nu are server_uuid: folosiți expect_server_id
 tgt.id_on_mysql=expect_server_id este setat, dar serverul este MySQL: folosiți expect_server_uuid
+
+# --- topology ------------------------------------------------------------------
+topo.plugin_unreadable=nu se poate citi starea pluginului Group Replication (information_schema.PLUGINS): topologia este necunoscută
+topo.members_unreadable=Group Replication este instalat, dar performance_schema.replication_group_members nu poate fi citit
+topo.no_members=Group Replication este instalat, dar niciun membru al grupului nu este vizibil
+topo.member_invalid=membru incoerent al grupului: %s
+topo.member_duplicate=membrul %s apare de mai multe ori în grup
+topo.local_missing=acest nod (%s) nu se află printre membrii grupului
+topo.local_not_online=acest nod este %s în grup, nu ONLINE
+topo.primary_count=%s PRIMARY online în grup, se aștepta exact 1
+topo.secondary=acest nod este un SECONDARY al grupului: aici nu se face backup. PRIMARY este %s (IP %s), portul %s
+topo.wsrep_unreadable=nu se poate citi @@wsrep_on: starea Galera este necunoscută
+topo.wsrep_on=wsrep_on=ON: cluster Galera, nesuportat (regula „doar PRIMARY” nu se aplică unui cluster multi-primary)
+topo.wsrep_ambiguous=valoare neașteptată pentru @@wsrep_on: %s
