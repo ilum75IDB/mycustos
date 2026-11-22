@@ -90,10 +90,21 @@ configuration, the authentication, `data_dir`, `logs_dir` and the `config/`
 directory, the free space, and the commands required by the configured engine,
 compression and archive backend. Each check prints `OK`, `WARN` or `FAIL`, with a
 hint when there is something to change. `--test-connection` also connects to the
-MySQL server and, with `engine=auto`, shows which engine the server edition selects.
+MySQL server, checks the identity of the instance and its topology (see below) and,
+with `engine=auto`, shows which engine the server edition selects. A Group
+Replication SECONDARY is a warning: the backup would be skipped there.
+
+When a problem can be fixed with a command, the hint **is** that command, ready to
+copy; preflight never runs it. For example: `cp -p -- … mycustos.conf.example …` when
+the configuration is missing, `sed -i -E 's|^…KEY=.*|KEY=value|' …` for a key to change
+(also when it is commented out), `printf '%s\n' KEY=value >> …` for a key that is not
+there. On a host with more than one MySQL server and no expected identity, it prints
+the `mysql_socket` and `expect_*` lines with the values just read. The commands only
+ever change `mycustos.conf` (or create a missing credentials file from its template).
 
 Exit code `0` when nothing failed (warnings allowed), `3` for a configuration
-problem, `4` for an environment problem.
+problem, `4` for an environment problem, `9` when the identity or the topology is
+rejected.
 
 ### inspect
 

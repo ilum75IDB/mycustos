@@ -22,6 +22,10 @@ and the project follows [Semantic Versioning](https://semver.org/).
   inconsistent group and an unreadable `wsrep_on` are refused (#7).
 - `mycustos inspect`: which instance is reached and what a backup would do there,
   as stable `KEY=value` lines for scripts; read-only (#8).
+- `preflight`: with `--test-connection`, identity and topology checks (a SECONDARY
+  is a warning, a rejected target exits with `9`); copy-ready fix commands for a
+  missing configuration or credentials file, a key to change or to add, a missing
+  compressor, and the `expect_*` lines on a host with several MySQL servers (#9).
 - `core/engine.sh`: the engine detection, shared by `preflight` and `inspect`.
 - Exit code `9`: wrong or unsupported target.
 

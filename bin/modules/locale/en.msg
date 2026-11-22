@@ -127,6 +127,16 @@ pf.engine_selected=engine: auto selects %s for this server
 pf.cmd_found=command %s: %s
 pf.cmd_missing=command %s: not found in PATH
 pf.needed_for=needed for %s
+pf.config_missing=configuration file not found: %s
+pf.hint_copy_example=start from the example:
+pf.hint_setup=or create it by answering a few questions:
+pf.hint_cnf_create=create it from the template, then set user and password in it:
+pf.hint_switch_compress=or switch to %s, which is installed:
+pf.target_ok=instance: %s, port %s, socket %s, datadir %s
+pf.topology_single=topology: single instance
+pf.topology_primary=topology: Group Replication, this node is the PRIMARY
+pf.multi_instance=%s MySQL server processes on this host, and the expected identity is not fully set
+pf.hint_expect=pin it to the instance just reached:
 
 # --- target identity ---------------------------------------------------------------
 tgt.version_failed=cannot read the server version and edition

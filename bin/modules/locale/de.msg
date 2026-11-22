@@ -125,6 +125,16 @@ pf.engine_selected=Engine: auto wählt %s für diesen Server
 pf.cmd_found=Befehl %s: %s
 pf.cmd_missing=Befehl %s: nicht im PATH gefunden
 pf.needed_for=benötigt für %s
+pf.config_missing=Konfigurationsdatei nicht gefunden: %s
+pf.hint_copy_example=vom Beispiel ausgehen:
+pf.hint_setup=oder sie durch Beantworten einiger Fragen erstellen:
+pf.hint_cnf_create=aus der Vorlage erstellen, dann Benutzer und Passwort darin setzen:
+pf.hint_switch_compress=oder zu %s wechseln, das installiert ist:
+pf.target_ok=Instanz: %s, Port %s, Socket %s, datadir %s
+pf.topology_single=Topologie: einzelne Instanz
+pf.topology_primary=Topologie: Group Replication, dieser Knoten ist der PRIMARY
+pf.multi_instance=%s MySQL-Serverprozesse auf diesem Host, und die erwartete Identität ist nicht vollständig gesetzt
+pf.hint_expect=sie an die gerade erreichte Instanz binden:
 
 # --- target identity ---------------------------------------------------------------
 tgt.version_failed=Version und Edition des Servers können nicht gelesen werden
