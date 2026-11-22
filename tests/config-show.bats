@@ -89,7 +89,7 @@ line() {
 }
 
 @test "config migrate is not implemented yet: exit 69" {
-  run "$MYCUSTOS" --home "$BASE" config migrate /tmp/backup.conf
+  run "$MYCUSTOS" --home "$BASE" config migrate /tmp/old.conf
   [ "$status" -eq 69 ]
   [[ "$output" == *"config migrate is not implemented yet"* ]]
 }
