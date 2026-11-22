@@ -18,7 +18,7 @@ setup() {
 @test "help lists every command and flags the unimplemented ones" {
   run "$MYCUSTOS" help
   [ "$status" -eq 0 ]
-  for c in backup preflight check-config status config version help; do
+  for c in backup preflight inspect check-config status config version help; do
     [[ "$output" == *"  $c "* ]]
   done
   [[ "$output" == *"backup"*"(not implemented yet)"* ]]

@@ -36,6 +36,7 @@ help.languages=Limbi: %s (curentă: %s)
 help.installation=Instalare: %s
 help.cmd.backup=Rulează un backup FULL sau INCR (--type full|incr, --dry-run)
 help.cmd.preflight=Verifică cerințele și sugerează modificări ale configurației (doar citire)
+help.cmd.inspect=Arată ce instanță este accesată și ce ar face acolo un backup (doar citire)
 help.cmd.check_config=Validează mycustos.conf și raportează toate problemele (doar citire)
 help.cmd.status=Afișează rezultatul ultimei rulări
 help.cmd.config=Afișează configurația efectivă sau migrează un fișier vechi
@@ -147,3 +148,6 @@ topo.secondary=acest nod este un SECONDARY al grupului: aici nu se face backup. 
 topo.wsrep_unreadable=nu se poate citi @@wsrep_on: starea Galera este necunoscută
 topo.wsrep_on=wsrep_on=ON: cluster Galera, nesuportat (regula „doar PRIMARY” nu se aplică unui cluster multi-primary)
 topo.wsrep_ambiguous=valoare neașteptată pentru @@wsrep_on: %s
+
+# --- inspect ---------------------------------------------------------------------
+insp.mysql_missing=clientul mysql nu a fost găsit în PATH

@@ -21,6 +21,7 @@ mc_test_load_core() {
   source "$MYCUSTOS_MODULES/core/auth.sh"
   source "$MYCUSTOS_MODULES/core/target.sh"
   source "$MYCUSTOS_MODULES/core/topology.sh"
+  source "$MYCUSTOS_MODULES/core/engine.sh"
 }
 
 # Writes the given lines to <base>/config/mycustos.conf.

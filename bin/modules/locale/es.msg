@@ -36,6 +36,7 @@ help.languages=Idiomas: %s (actual: %s)
 help.installation=Instalación: %s
 help.cmd.backup=Ejecuta un backup FULL o INCR (--type full|incr, --dry-run)
 help.cmd.preflight=Comprueba los requisitos y sugiere cambios en la configuración (solo lectura)
+help.cmd.inspect=Muestra qué instancia se alcanza y qué haría allí un backup (solo lectura)
 help.cmd.check_config=Valida mycustos.conf e informa de todos los problemas (solo lectura)
 help.cmd.status=Muestra el resultado de la última ejecución
 help.cmd.config=Muestra la configuración efectiva o migra un archivo antiguo
@@ -147,3 +148,6 @@ topo.secondary=este nodo es un SECONDARY del grupo: aquí no se hace backup. El 
 topo.wsrep_unreadable=no se puede leer @@wsrep_on: el estado de Galera es desconocido
 topo.wsrep_on=wsrep_on=ON: clúster Galera, no soportado (la regla "solo PRIMARY" no se aplica a un clúster multi-primary)
 topo.wsrep_ambiguous=valor inesperado de @@wsrep_on: %s
+
+# --- inspect ---------------------------------------------------------------------
+insp.mysql_missing=cliente mysql no encontrado en el PATH

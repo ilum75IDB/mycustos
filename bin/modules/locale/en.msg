@@ -38,6 +38,7 @@ help.languages=Languages: %s (current: %s)
 help.installation=Installation: %s
 help.cmd.backup=Run a FULL or INCR backup (--type full|incr, --dry-run)
 help.cmd.preflight=Check prerequisites and suggest config changes (read-only)
+help.cmd.inspect=Shows which instance is reached and what a backup would do there (read-only)
 help.cmd.check_config=Validate mycustos.conf, reporting every problem (read-only)
 help.cmd.status=Show the outcome of the last run
 help.cmd.config=Show the effective configuration or migrate a legacy file
@@ -149,3 +150,6 @@ topo.secondary=this node is a SECONDARY of the group: no backup here. The PRIMAR
 topo.wsrep_unreadable=cannot read @@wsrep_on: the Galera state is unknown
 topo.wsrep_on=wsrep_on=ON: Galera cluster, not supported (the PRIMARY-only rule does not apply to a multi-primary cluster)
 topo.wsrep_ambiguous=unexpected value of @@wsrep_on: %s
+
+# --- inspect ---------------------------------------------------------------------
+insp.mysql_missing=mysql client not found in PATH

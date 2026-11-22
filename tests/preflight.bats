@@ -215,7 +215,6 @@ preflight() {
 }
 
 @test "mc_engine_for_server maps the server editions" {
-  source "$REPO/bin/modules/commands/preflight.sh"
   [ "$(mc_engine_for_server 'MySQL Enterprise Server - Commercial')" = mysqlbackup ]
   [ "$(mc_engine_for_server 'MySQL Community Server - GPL')" = mysqldump ]
   [ "$(mc_engine_for_server 'Source distribution')" = mysqldump ]
