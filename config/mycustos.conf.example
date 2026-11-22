@@ -9,8 +9,14 @@
 #   ${MYCUSTOS_DATA}    data_dir
 #   ${MYCUSTOS_LOGS}    logs_dir
 #
+# This file can be the same on every server: put what one server customises in
+# config/mycustos.local.conf (see mycustos.local.conf.example), which is read
+# after this file and overrides it key by key.
+#
 # Any key can be overridden by an environment variable MYCUSTOS_<KEY>
 # (e.g. MYCUSTOS_RETENTION_DAYS=3), except config_schema. Unknown keys are errors.
+# Precedence: command-line option > MYCUSTOS_<KEY> > mycustos.local.conf >
+# mycustos.conf > built-in default.
 
 # Format version of this file. Change it only when the release notes say so.
 config_schema=1

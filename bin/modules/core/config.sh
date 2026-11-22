@@ -14,17 +14,25 @@
 # The only expansions are ${MYCUSTOS_HOME}, ${MYCUSTOS_CONFIG}, ${MYCUSTOS_DATA}
 # and ${MYCUSTOS_LOGS} (data_dir and logs_dir may use only the first two).
 #
-# The file decides where the data goes and which credentials are used, so it
+# Local overrides: mycustos.local.conf, next to the main file (same name with
+# ".conf" replaced by ".local.conf"), is optional and read after it. The main
+# file holds the values shared by every server, the local file only what this
+# server customises: a key in both takes the local value. A key twice in the
+# same file is still an error.
+#
+# Each file decides where the data goes and which credentials are used, so it
 # must be safe even though it is never executed: a regular file (not a
 # symbolic link), owned by the running user or root, not writable by group or
 # others. Any violation is a configuration error.
 #
-# Precedence: command-line option > environment (MYCUSTOS_<KEY>) > file > default.
+# Precedence: command-line option > environment (MYCUSTOS_<KEY>) >
+# mycustos.local.conf > mycustos.conf > default.
 #
 # After mc_config_load:
 #   MC_CONF[key]         effective value
 #   MC_CONF_ORIGIN[key]  "default", "<file>:<line>", "env MYCUSTOS_<KEY>" or "option <name>"
 #   MC_CONFIG_FILE, MYCUSTOS_CONFIG (its directory), MYCUSTOS_DATA, MYCUSTOS_LOGS
+#   MC_CONFIG_LOCAL_FILE  the local file path; MC_CONFIG_LOCAL_LOADED 1 when it was read
 #   MC_CONFIG_ERRORS     every problem found, as "<origin>: <message>"
 
 readonly MC_CONFIG_SCHEMA_VERSION=1
@@ -41,6 +49,8 @@ MC_CONFIG_KEYS=()
 MC_CONFIG_ERRORS=()
 MC_CONFIG_UNSAFE=()
 MC_CONFIG_FILE=''
+MC_CONFIG_LOCAL_FILE=''
+MC_CONFIG_LOCAL_LOADED=0
 MYCUSTOS_CONFIG=''
 MYCUSTOS_DATA=''
 MYCUSTOS_LOGS=''
@@ -105,6 +115,22 @@ mc_config_file() {
   printf '%s\n' "$file"
 }
 
+# mc_config_local_file [MAIN]: path of the local override file of MAIN
+# (default: the main file in use).
+mc_config_local_file() {
+  local main=${1:-$(mc_config_file)}
+  printf '%s.local.conf\n' "${main%.conf}"
+}
+
+# The files read, for headers: "<main>" or "<main> + <local>".
+mc_config_files_desc() {
+  if [ "$MC_CONFIG_LOCAL_LOADED" -eq 1 ]; then
+    printf '%s + %s\n' "$MC_CONFIG_FILE" "$MC_CONFIG_LOCAL_FILE"
+  else
+    printf '%s\n' "$MC_CONFIG_FILE"
+  fi
+}
+
 mc_config_load() {
   local key
   MC_CONFIG_ERRORS=()
@@ -116,38 +142,52 @@ mc_config_load() {
   done
 
   MC_CONFIG_FILE=$(mc_config_file)
+  MC_CONFIG_LOCAL_FILE=$(mc_config_local_file "$MC_CONFIG_FILE")
+  MC_CONFIG_LOCAL_LOADED=0
   MYCUSTOS_CONFIG=$(dirname -- "$MC_CONFIG_FILE")
   if [ ! -L "$MC_CONFIG_FILE" ] && { [ ! -f "$MC_CONFIG_FILE" ] || [ ! -r "$MC_CONFIG_FILE" ]; }; then
     MC_CONFIG_ERRORS+=("$MC_CONFIG_FILE: $(mc_t cfg.not_found)")
     return 1
   fi
-  if ! _mc_config_safety "$MC_CONFIG_FILE"; then
-    local e
-    for e in "${MC_CONFIG_UNSAFE[@]}"; do
-      MC_CONFIG_ERRORS+=("$MC_CONFIG_FILE: $e")
-    done
-    return 1
+  _mc_config_safe_or_errors "$MC_CONFIG_FILE" || return 1
+  # The local file is optional, but once it exists it must be safe too.
+  if [ -e "$MC_CONFIG_LOCAL_FILE" ] || [ -L "$MC_CONFIG_LOCAL_FILE" ]; then
+    _mc_config_safe_or_errors "$MC_CONFIG_LOCAL_FILE" || return 1
+    if [ ! -r "$MC_CONFIG_LOCAL_FILE" ]; then
+      MC_CONFIG_ERRORS+=("$MC_CONFIG_LOCAL_FILE: $(mc_t cfg.not_found)")
+      return 1
+    fi
+    MC_CONFIG_LOCAL_LOADED=1
   fi
 
   _mc_config_parse_file "$MC_CONFIG_FILE"
+  [ "$MC_CONFIG_LOCAL_LOADED" -eq 0 ] || _mc_config_parse_file "$MC_CONFIG_LOCAL_FILE"
   _mc_config_apply_env
   _mc_config_resolve
   [ ${#MC_CONFIG_ERRORS[@]} -eq 0 ]
 }
 
-# Raw value of KEY in the configuration file, without validation or expansion;
-# returns 1 when the file or the key is missing. Used to pick the language
-# before the configuration is loaded (and its errors are translated).
+# Raw value of KEY in the configuration files (the local one first), without
+# validation or expansion; returns 1 when no safe file holds the key. Used to
+# pick the language before the configuration is loaded (and its errors are
+# translated).
 mc_config_peek() {
-  local file line key value
-  file=$(mc_config_file)
+  local main
+  main=$(mc_config_file)
+  _mc_config_peek_file "$(mc_config_local_file "$main")" "$1" ||
+    _mc_config_peek_file "$main" "$1"
+}
+
+# _mc_config_peek_file FILE KEY
+_mc_config_peek_file() {
+  local file=$1 want=$2 line key value
   [ -f "$file" ] && [ -r "$file" ] || return 1
   _mc_config_safety "$file" || return 1
   while IFS= read -r line || [ -n "$line" ]; do
     _mc_trim line "${line%$'\r'}"
     [[ "$line" == *=* && "$line" != '#'* ]] || continue
     _mc_trim key "${line%%=*}"
-    [ "$key" = "$1" ] || continue
+    [ "$key" = "$want" ] || continue
     _mc_trim value "${line#*=}"
     _mc_unquote value
     printf '%s\n' "$value"
@@ -187,6 +227,17 @@ mc_config_load_or_die() {
 }
 
 # --- internals ---------------------------------------------------------------
+
+# _mc_config_safe_or_errors FILE: adds the safety problems of FILE to
+# MC_CONFIG_ERRORS, returns 1 when there is at least one.
+_mc_config_safe_or_errors() {
+  local e
+  _mc_config_safety "$1" && return 0
+  for e in "${MC_CONFIG_UNSAFE[@]}"; do
+    MC_CONFIG_ERRORS+=("$1: $e")
+  done
+  return 1
+}
 
 # _mc_config_safety FILE: fills MC_CONFIG_UNSAFE with every reason why FILE
 # must not be read (translated, with the command that fixes it) and returns 1

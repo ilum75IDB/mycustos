@@ -42,7 +42,7 @@ help.cmd.status=Afișează rezultatul ultimei rulări
 help.cmd.config=Afișează configurația efectivă sau importă un fișier existent
 help.cmd.version=Afișează versiunea și atribuirea
 help.cmd.help=Afișează acest ajutor sau ajutorul unei comenzi
-help.opt.config=Fișier de configurare (implicit: <home>/config/mycustos.conf)
+help.opt.config=Fișier de configurare (implicit: <home>/config/mycustos.conf; FILE.local.conf, dacă există, îl suprascrie)
 help.opt.home=Baza pentru config/, data/ și logs/ (implicit: instalarea)
 help.opt.lang=Limba mesajelor (implicit: language= sau locale-ul sistemului)
 help.opt.quiet=Afișează doar avertismentele și erorile

@@ -45,6 +45,7 @@ mycustos is **self-contained**: everything lives under one base directory, usual
 │   └── modules/             # internal code (core, engines, packaging, archive, notifiers, commands)
 ├── config/
 │   ├── mycustos.conf        # your configuration (KEY=value, never executed)
+│   ├── mycustos.local.conf  # optional: only what this server customises
 │   └── backup-credentials.conf
 ├── data/                    # backups
 └── logs/                    # logs and status flags
@@ -201,9 +202,16 @@ which documents every key.
 - Only four variables are expanded: `${MYCUSTOS_HOME}`, `${MYCUSTOS_CONFIG}`,
   `${MYCUSTOS_DATA}` and `${MYCUSTOS_LOGS}`.
 - Precedence: command-line option > environment variable `MYCUSTOS_<KEY>`
-  (e.g. `MYCUSTOS_RETENTION_DAYS=3`) > file > built-in default.
+  (e.g. `MYCUSTOS_RETENTION_DAYS=3`) > `mycustos.local.conf` > `mycustos.conf` >
+  built-in default.
+- **Local overrides**: `mycustos.conf` can be the same file on every server; put in
+  the optional `config/mycustos.local.conf` only the keys this server customises
+  (start from [`config/mycustos.local.conf.example`](config/mycustos.local.conf.example)).
+  It is read after `mycustos.conf` with the same rules, and a key set in both takes
+  the local value. With `--config /x/foo.conf` the local file is `/x/foo.local.conf`.
+  `mycustos config show` tells, for each key, the file and line it comes from.
 - `config_schema` versions the file format: it changes only when the format does.
-- The file must be safe, because whoever edits it decides where the backups go and
+- Both files must be safe, because whoever edits it decides where the backups go and
   which credentials are used: a regular file (not a symbolic link), owned by the
   user running mycustos or by root, not writable by group or others. Otherwise every
   command stops with exit `3` and prints the `chmod`/`chown` that fixes it.
