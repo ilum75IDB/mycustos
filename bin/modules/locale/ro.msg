@@ -125,6 +125,16 @@ pf.engine_selected=motor: auto selectează %s pentru acest server
 pf.cmd_found=comanda %s: %s
 pf.cmd_missing=comanda %s: nu a fost găsită în PATH
 pf.needed_for=necesară pentru %s
+pf.config_missing=fișierul de configurare nu a fost găsit: %s
+pf.hint_copy_example=porniți de la exemplu:
+pf.hint_setup=sau creați-l răspunzând la câteva întrebări:
+pf.hint_cnf_create=creați-l din șablon, apoi setați în el utilizatorul și parola:
+pf.hint_switch_compress=sau treceți la %s, care este instalat:
+pf.target_ok=instanță: %s, port %s, socket %s, datadir %s
+pf.topology_single=topologie: instanță unică
+pf.topology_primary=topologie: Group Replication, acest nod este PRIMARY
+pf.multi_instance=%s procese server MySQL pe acest host, iar identitatea așteptată nu este setată complet
+pf.hint_expect=legați-o de instanța tocmai accesată:
 
 # --- target identity ---------------------------------------------------------------
 tgt.version_failed=nu se pot citi versiunea și ediția serverului

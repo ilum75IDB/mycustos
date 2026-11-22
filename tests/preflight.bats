@@ -146,34 +146,12 @@ preflight() {
   [[ "$output" == *"OK    engine: auto, chosen at backup time from the server edition"* ]]
 }
 
-@test "--test-connection: server reached, auto selects the engine" {
-  mc_test_conf 'config_schema=1'
-  export MC_MOCK_MYSQL_OUTPUT='MySQL Enterprise Server - Commercial'
-  preflight --test-connection
-  [ "$status" -eq 4 ]
-  [[ "$output" == *"OK    connection: MySQL server"*"Commercial"* ]]
-  [[ "$output" == *"OK    engine: auto selects mysqlbackup for this server"* ]]
-  [[ "$output" == *"FAIL  command mysqlbackup: not found in PATH"* ]]
-  stub mysqlbackup
-  preflight --test-connection
-  [ "$status" -eq 0 ]
-}
-
 @test "--test-connection: connection refused is exit 4" {
   conf
   export MC_MOCK_MYSQL_RC=1
   preflight --test-connection
   [ "$status" -eq 4 ]
   [[ "$output" == *"FAIL  cannot connect to the MySQL server with the option file $CNF"* ]]
-}
-
-@test "--test-connection: unknown server edition with engine=auto is exit 3" {
-  mc_test_conf 'config_schema=1'
-  export MC_MOCK_MYSQL_OUTPUT='Something else'
-  preflight --test-connection
-  [ "$status" -eq 3 ]
-  [[ "$output" == *"FAIL  engine=auto: server edition not recognised: Something else"* ]]
-  [[ "$output" == *"-> set engine= explicitly in mycustos.conf"* ]]
 }
 
 @test "--test-connection: skipped when authentication fails" {
@@ -184,9 +162,190 @@ preflight() {
   [[ "$output" == *"FAIL  connection test skipped"* ]]
 }
 
+# --- server answers (mysql mock with a responses file) -------------------------
+
+UUID=3e11fa47-71ca-11e1-9e33-c80aa9429562
+Q_VERSION='SELECT @@version, @@version_comment'
+Q_MYSQL='SELECT @@hostname, @@port, @@socket, @@datadir, @@server_uuid'
+Q_PLUGIN="SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'"
+Q_MEMBERS='SELECT MEMBER_ID, MEMBER_HOST, MEMBER_PORT, MEMBER_STATE, MEMBER_ROLE FROM performance_schema.replication_group_members'
+
+answer() {
+  printf '%s\t%s\t%s\n' "$1" "$2" "$3" >> "$MC_MOCK_MYSQL_RESPONSES"
+}
+
+# server [EDITION]: a reachable single MySQL instance.
+server() {
+  export MC_MOCK_MYSQL_RESPONSES="$BATS_TEST_TMPDIR/responses"
+  answer 'SELECT 1' 0 1
+  answer "$Q_VERSION" 0 "8.0.36\\t${1:-MySQL Community Server - GPL}"
+  answer "$Q_MYSQL" 0 "db-a\\t3306\\t/run/mysqld/a.sock\\t/data/a/\\t$UUID"
+  answer "$Q_PLUGIN" 0 ''
+}
+
+# processes NAME...: a ps that lists these commands.
+processes() {
+  printf '#!/bin/sh\nprintf "%%s\\n" %s\n' "$*" > "$TPATH/ps"
+  chmod +x "$TPATH/ps"
+}
+
+@test "--test-connection: server reached, auto selects the engine" {
+  mc_test_conf 'config_schema=1'
+  server 'MySQL Enterprise Server - Commercial'
+  preflight --test-connection
+  [ "$status" -eq 4 ]
+  [[ "$output" == *"OK    connection: MySQL server 8.0.36 (MySQL Enterprise Server - Commercial)"* ]]
+  [[ "$output" == *"OK    instance: db-a, port 3306, socket /run/mysqld/a.sock, datadir /data/a/"* ]]
+  [[ "$output" == *"OK    topology: single instance"* ]]
+  [[ "$output" == *"OK    engine: auto selects mysqlbackup for this server"* ]]
+  [[ "$output" == *"FAIL  command mysqlbackup: not found in PATH"* ]]
+  stub mysqlbackup
+  preflight --test-connection
+  [ "$status" -eq 0 ]
+}
+
+@test "--test-connection: unknown server edition with engine=auto is exit 3, with the fix" {
+  mc_test_conf 'config_schema=1' 'engine=auto'
+  server 'Something else'
+  preflight --test-connection
+  [ "$status" -eq 3 ]
+  [[ "$output" == *"FAIL  engine=auto: server edition not recognised: Something else"* ]]
+  [[ "$output" == *"-> set engine= explicitly in mycustos.conf"* ]]
+  [[ "$output" == *"-> sed -i -E 's|^[[:space:]]*engine[[:space:]]*=.*|engine=mysqldump|' $BASE/config/mycustos.conf"* ]]
+}
+
+@test "--test-connection: identity mismatch is exit 9" {
+  conf expect_port=3310
+  server
+  preflight --test-connection
+  [ "$status" -eq 9 ]
+  [[ "$output" == *"FAIL  expect_port: expected 3310, the server reports 3306"* ]]
+  [[ "$output" != *"topology:"* ]]
+}
+
+@test "--test-connection: an expectation for the other product is exit 3" {
+  conf expect_server_id=4
+  server
+  preflight --test-connection
+  [ "$status" -eq 3 ]
+  [[ "$output" == *"FAIL  expect_server_id is set, but the server is MySQL"* ]]
+}
+
+@test "--test-connection: a SECONDARY is a warning, exit 0" {
+  conf
+  server
+  sed -i.bak '/PLUGIN_STATUS/d' "$MC_MOCK_MYSQL_RESPONSES"
+  answer "$Q_PLUGIN" 0 ACTIVE
+  answer "$Q_MEMBERS" 0 "x-1\\t192.0.2.10\\t3306\\tONLINE\\tPRIMARY\\n$UUID\\tdb-a\\t3306\\tONLINE\\tSECONDARY"
+  preflight --test-connection
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"WARN  this node is a SECONDARY of the group: no backup here. The PRIMARY is 192.0.2.10 (IP 192.0.2.10), port 3306"* ]]
+}
+
+@test "--test-connection: Group Replication PRIMARY" {
+  conf
+  server
+  sed -i.bak '/PLUGIN_STATUS/d' "$MC_MOCK_MYSQL_RESPONSES"
+  answer "$Q_PLUGIN" 0 ACTIVE
+  answer "$Q_MEMBERS" 0 "$UUID\\tdb-a\\t3306\\tONLINE\\tPRIMARY"
+  preflight --test-connection
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"OK    topology: Group Replication, this node is the PRIMARY"* ]]
+}
+
+@test "--test-connection: unreadable topology is exit 9" {
+  conf
+  server
+  sed -i.bak '/PLUGIN_STATUS/d' "$MC_MOCK_MYSQL_RESPONSES"
+  answer "$Q_PLUGIN" 1 ''
+  preflight --test-connection
+  [ "$status" -eq 9 ]
+  [[ "$output" == *"FAIL  cannot read the Group Replication plugin status"* ]]
+}
+
+@test "--test-connection: several instances and no expectation, the expect_* lines with the values read" {
+  conf
+  server
+  processes /usr/sbin/mysqld mysqld bash
+  preflight --test-connection
+  [ "$status" -eq 0 ]
+  f="$BASE/config/mycustos.conf"
+  [[ "$output" == *"WARN  2 MySQL server processes on this host, and the expected identity is not fully set"* ]]
+  [[ "$output" == *"-> printf '%s\n' mysql_socket=/run/mysqld/a.sock >> $f"* ]]
+  [[ "$output" == *"-> printf '%s\n' expect_hostname=db-a >> $f"* ]]
+  [[ "$output" == *"-> printf '%s\n' expect_port=3306 >> $f"* ]]
+  [[ "$output" == *"-> printf '%s\n' expect_datadir=/data/a/ >> $f"* ]]
+  [[ "$output" == *"-> printf '%s\n' expect_server_uuid=$UUID >> $f"* ]]
+  [[ "$output" != *"expect_server_id"* ]]
+}
+
+@test "--test-connection: one instance, no suggestion about the identity" {
+  conf
+  server
+  processes mysqld bash
+  preflight --test-connection
+  [[ "$output" != *"expected identity"* ]]
+}
+
+@test "suggestions: active, commented and absent keys" {
+  conf 'expect_hostname=' '# expect_port=3306'
+  server
+  processes mysqld mariadbd
+  preflight --test-connection
+  f="$BASE/config/mycustos.conf"
+  [[ "$output" == *"-> sed -i -E 's|^[[:space:]]*expect_hostname[[:space:]]*=.*|expect_hostname=db-a|' $f"* ]]
+  [[ "$output" == *"-> sed -i -E '0,/^[[:space:]]*#[[:space:]]*expect_port[[:space:]]*=/s|^[[:space:]]*#[[:space:]]*expect_port[[:space:]]*=.*|expect_port=3306|' $f"* ]]
+  [[ "$output" == *"-> printf '%s\n' expect_datadir=/data/a/ >> $f"* ]]
+}
+
+@test "suggestions work: applied with GNU sed, the configuration gets the values" {
+  sed --version 2>/dev/null | head -n 1 | grep -q '^sed (GNU sed)' || skip 'GNU sed needed (sed -i, 0,/re/)'
+  conf 'expect_hostname=' '# expect_port=1' '#expect_port=2'
+  server
+  processes mysqld mysqld
+  preflight --test-connection
+  local line
+  while IFS= read -r line; do
+    eval "${line#*-> }"
+  done < <(printf '%s\n' "$output" | grep -E -- '-> (sed|printf) ')
+  mc_config_load || { mc_test_errors; return 1; }
+  [ "${MC_CONF[expect_hostname]}" = db-a ]
+  [ "${MC_CONF[expect_port]}" = 3306 ]
+  [ "${MC_CONF[expect_datadir]}" = /data/a/ ]
+  [ "${MC_CONF[mysql_socket]}" = /run/mysqld/a.sock ]
+  grep -q '^#expect_port=2' "$BASE/config/mycustos.conf"
+}
+
+@test "missing configuration: exit 3, with the copy command" {
+  preflight
+  [ "$status" -eq 3 ]
+  [[ "$output" == *"FAIL  configuration file not found: $BASE/config/mycustos.conf"* ]]
+  [[ "$output" == *"-> cp -p -- $REPO/config/mycustos.conf.example $BASE/config/mycustos.conf"* ]]
+  [[ "$output" == *"Result: 0 OK, 0 warning(s), 1 failure(s)"* ]]
+}
+
+@test "missing credentials file: the command that creates it from the template" {
+  rm "$CNF"
+  conf
+  preflight
+  [ "$status" -eq 3 ]
+  [[ "$output" == *"-> (umask 077 && cp -- $REPO/config/backup-credentials.conf.example $CNF)"* ]]
+}
+
+@test "missing compressor with the other one installed: the switch command" {
+  unstub zstd
+  stub gzip
+  conf compress_level=12
+  preflight
+  [ "$status" -eq 4 ]
+  [[ "$output" == *"FAIL  command zstd: not found in PATH"* ]]
+  [[ "$output" == *"-> printf '%s\n' compress=gzip >> $BASE/config/mycustos.conf"* ]]
+  [[ "$output" == *"compress_level=6"* ]]
+}
+
 @test "read-only: no file created or changed, temporary files removed" {
   mc_test_conf 'config_schema=1'
-  export MC_MOCK_MYSQL_OUTPUT='MySQL Community Server - GPL'
+  server
   before=$(find "$BASE" -exec ls -ld {} + | sort)
   preflight --test-connection
   [ "$status" -eq 0 ]

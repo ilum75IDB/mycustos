@@ -125,6 +125,16 @@ pf.engine_selected=moteur : auto sélectionne %s pour ce serveur
 pf.cmd_found=commande %s : %s
 pf.cmd_missing=commande %s : introuvable dans le PATH
 pf.needed_for=nécessaire pour %s
+pf.config_missing=fichier de configuration introuvable : %s
+pf.hint_copy_example=partir de l'exemple :
+pf.hint_setup=ou le créer en répondant à quelques questions :
+pf.hint_cnf_create=le créer à partir du modèle, puis y définir l'utilisateur et le mot de passe :
+pf.hint_switch_compress=ou passer à %s, qui est installé :
+pf.target_ok=instance : %s, port %s, socket %s, datadir %s
+pf.topology_single=topologie : instance unique
+pf.topology_primary=topologie : Group Replication, ce nœud est le PRIMARY
+pf.multi_instance=%s processus serveur MySQL sur cet hôte, et l'identité attendue n'est pas entièrement définie
+pf.hint_expect=la lier à l'instance qui vient d'être atteinte :
 
 # --- target identity ---------------------------------------------------------------
 tgt.version_failed=impossible de lire la version et l'édition du serveur

@@ -125,6 +125,16 @@ pf.engine_selected=motore: auto seleziona %s per questo server
 pf.cmd_found=comando %s: %s
 pf.cmd_missing=comando %s: non trovato nel PATH
 pf.needed_for=serve per %s
+pf.config_missing=file di configurazione non trovato: %s
+pf.hint_copy_example=partire dall'esempio:
+pf.hint_setup=oppure crearlo rispondendo a qualche domanda:
+pf.hint_cnf_create=crearlo dal modello, poi impostarvi utente e password:
+pf.hint_switch_compress=oppure passare a %s, che è installato:
+pf.target_ok=istanza: %s, porta %s, socket %s, datadir %s
+pf.topology_single=topologia: istanza singola
+pf.topology_primary=topologia: Group Replication, questo nodo è il PRIMARY
+pf.multi_instance=%s processi server MySQL su questo host, e l'identità attesa non è impostata del tutto
+pf.hint_expect=legarla all'istanza appena raggiunta:
 
 # --- target identity ---------------------------------------------------------------
 tgt.version_failed=impossibile leggere versione ed edizione del server

@@ -30,3 +30,16 @@ mc_engine_command() {
     *) echo "$1" ;;
   esac
 }
+
+# Engine for the target read by mc_target_check: the configured one, or the
+# one engine=auto picks (MariaDB is recognised from the product too). Prints
+# nothing when the edition is not recognised or the server was not read.
+mc_engine_for_target() {
+  if [ "${MC_CONF[engine]}" != auto ]; then
+    printf '%s\n' "${MC_CONF[engine]}"
+  elif [ "${MC_TARGET_PRODUCT:-}" = MariaDB ]; then
+    echo mariadb-backup
+  elif [ -n "${MC_TARGET_PRODUCT:-}" ]; then
+    mc_engine_for_server "$MC_TARGET_VERSION_COMMENT"
+  fi
+}

@@ -65,7 +65,7 @@ cmd_inspect() {
   _insp_kv PRIMARY_HOST    "$MC_TOPOLOGY_PRIMARY_HOST"
   _insp_kv PRIMARY_IP      "$MC_TOPOLOGY_PRIMARY_IP"
   _insp_kv PRIMARY_PORT    "$MC_TOPOLOGY_PRIMARY_PORT"
-  _insp_kv ENGINE          "$(_insp_engine)"
+  _insp_kv ENGINE          "$(mc_engine_for_target)"
   _insp_kv BACKUP_ALLOWED  "$allowed"
   return "$rc"
 }
@@ -93,16 +93,4 @@ _insp_auth() {
     --defaults-file=*) printf 'cnf:%s' "${opt#--defaults-file=}" ;;
     --login-path=*)    printf 'login-path:%s' "${opt#--login-path=}" ;;
   esac
-}
-
-# The configured engine, or the one engine=auto would pick for this server
-# (empty when the edition is not recognised or the server was not read).
-_insp_engine() {
-  if [ "${MC_CONF[engine]}" != auto ]; then
-    printf '%s' "${MC_CONF[engine]}"
-  elif [ "$MC_TARGET_PRODUCT" = MariaDB ]; then
-    printf 'mariadb-backup'
-  elif [ -n "$MC_TARGET_PRODUCT" ]; then
-    mc_engine_for_server "$MC_TARGET_VERSION_COMMENT"
-  fi
 }
