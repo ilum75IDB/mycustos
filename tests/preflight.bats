@@ -299,7 +299,7 @@ processes() {
 }
 
 @test "suggestions work: applied with GNU sed, the configuration gets the values" {
-  sed --version 2>/dev/null | grep -q GNU || skip 'GNU sed needed (sed -i, 0,/re/)'
+  sed --version 2>/dev/null | head -n 1 | grep -q '^sed (GNU sed)' || skip 'GNU sed needed (sed -i, 0,/re/)'
   conf 'expect_hostname=' '# expect_port=1' '#expect_port=2'
   server
   processes mysqld mysqld
