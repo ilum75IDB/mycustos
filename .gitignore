@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------
-# NEVER PUBLISH: original sources with internal data (local reference only)
+# NEVER PUBLISH: local reference material
 # ---------------------------------------------------------------------------
 docs/originali-da-non-postare-su-github/
 
@@ -39,6 +39,7 @@ backup_chain.state
 *.part_[0-9][0-9][0-9]
 *.log
 *.ERR
+*.WARN
 *.OK
 *.TIMEOUT
 

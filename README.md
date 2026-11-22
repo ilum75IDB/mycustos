@@ -5,8 +5,7 @@
 *custos* (Latin): guardian, keeper.
 
 > [!WARNING]
-> **Pre-release — not usable yet.** mycustos is a ground-up re-engineering of a Bash backup toolkit
-> that has been running on enterprise MySQL servers. The new code base is being written in phases
+> **Pre-release — not usable yet.** mycustos is being written in phases
 > (see [Roadmap](#roadmap)). Today only the read-only commands work (`preflight`,
 > `inspect`, `check-config`, `config show`, `help`, `version`): mycustos cannot run a backup yet.
 > Do not use it to protect real data until a release says otherwise.
@@ -276,14 +275,17 @@ These values are stable: existing codes are never renumbered.
 
 ## Roadmap
 
-| Phase | Scope |
-|---|---|
-| F0 | Repository, layout, entry point, core modules, CI (ShellCheck + Bats) |
-| F1 | Authentication, `preflight`, `check-config`, `config show` |
-| F2 | Engines, `simple` packaging, local archive + retention, lock, flags, summary, `backup --dry-run`, `status` |
-| F3 | `split` packaging, generic archive job queue, NetBackup backend |
-| F4 | Incremental chain with `mysqlbackup` |
-| F5 | `config migrate`, systemd / cron examples, release tarball, full documentation |
+| Phase | Version | Scope |
+|---|---|---|
+| F0 ✅ | 0.1.0 | Repository, layout, entry point, core modules, CI (ShellCheck + Bats) |
+| F1 ✅ | 0.2.0 | Authentication, `preflight`, `check-config`, `config show` |
+| F2 | 0.3.0 | Safe target: languages, instance identity, topology, `inspect`, preflight fixes, safe `mycustos.conf`, `setup` |
+| F3 | 0.4.0 | First local FULL: mysqldump engine, `simple` packaging, local archive + retention, lock, flags, summary, `backup --dry-run`, `status` |
+| F4 | 0.5.0 | `split` packaging, generic archive job queue, NetBackup backend, `mycustos archive` |
+| F5 | 0.6.0 | Incremental chain with `mysqlbackup` |
+| F6 | 0.7.0 → 1.0.0 | Other engines, `config migrate`, systemd / cron examples, release tarball |
+
+The design behind it is in [docs/architecture/01-architecture.md](docs/architecture/01-architecture.md).
 
 Version `1.0.0` will be tagged only after validation on a real server.
 

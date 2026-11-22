@@ -3,7 +3,7 @@
 # Original project: https://github.com/ilum75IDB/mycustos
 #
 # "mycustos config show":           effective configuration, with the origin of each value
-# "mycustos config migrate FILE":   convert a legacy backup.conf (planned)
+# "mycustos config migrate FILE":   import an existing configuration file (planned)
 # Sourced by bin/mycustos.
 #
 # Output of "config show", one line per key in schema order:
