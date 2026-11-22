@@ -24,9 +24,11 @@ mc_test_load_core() {
   source "$MYCUSTOS_MODULES/core/engine.sh"
 }
 
-# Writes the given lines to <base>/config/mycustos.conf.
+# Writes the given lines to <base>/config/mycustos.conf (never writable by
+# group or others, whatever the umask: core/config.sh would refuse it).
 mc_test_conf() {
   printf '%s\n' "$@" > "$BASE/config/mycustos.conf"
+  chmod go-w "$BASE/config/mycustos.conf"
 }
 
 # Prints the collected configuration errors, one per line.

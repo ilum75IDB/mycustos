@@ -257,7 +257,9 @@ language=
 - **The file must be safe** (#10): it is refused when it is not a regular file, when it
   is a symlink, when its owner is neither the user running mycustos nor root, or when it
   is writable by the group or by others. Even though it is never executed, whoever
-  edits it decides *where* the data goes and *which* credentials are used.
+  edits it decides *where* the data goes and *which* credentials are used. Every
+  violation is a configuration error (exit 3) that prints the `chmod`/`chown` fixing
+  it; the checks use `[ -O ]` and `ls -ln`, portable across GNU and BSD.
 
 ### 4.4 Directories: self-contained by default, movable when needed
 

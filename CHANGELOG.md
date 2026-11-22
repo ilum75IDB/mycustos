@@ -28,6 +28,9 @@ and the project follows [Semantic Versioning](https://semver.org/).
   compressor, and the `expect_*` lines on a host with several MySQL servers (#9).
 - `core/engine.sh`: the engine detection, shared by `preflight` and `inspect`.
 - Exit code `9`: wrong or unsupported target.
+- `core/config.sh`: an unsafe `mycustos.conf` is refused with exit `3` (symbolic
+  link, owner other than the running user or root, writable by group or others),
+  with the `chmod`/`chown` that fixes it (#10).
 
 ## [0.2.0] - 2026-10-23
 

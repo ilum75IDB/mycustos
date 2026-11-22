@@ -203,6 +203,10 @@ which documents every key.
 - Precedence: command-line option > environment variable `MYCUSTOS_<KEY>`
   (e.g. `MYCUSTOS_RETENTION_DAYS=3`) > file > built-in default.
 - `config_schema` versions the file format: it changes only when the format does.
+- The file must be safe, because whoever edits it decides where the backups go and
+  which credentials are used: a regular file (not a symbolic link), owned by the
+  user running mycustos or by root, not writable by group or others. Otherwise every
+  command stops with exit `3` and prints the `chmod`/`chown` that fixes it.
 
 ### Expected identity of the instance
 
