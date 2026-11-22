@@ -298,6 +298,22 @@ processes() {
   [[ "$output" == *"-> printf '%s\n' expect_datadir=/data/a/ >> $f"* ]]
 }
 
+@test "suggestions target mycustos.local.conf when it exists" {
+  conf 'expect_hostname='
+  local="$BASE/config/mycustos.local.conf"
+  printf '%s\n' '# expect_port=3306' > "$local"
+  chmod 644 "$local"
+  server
+  processes mysqld mariadbd
+  preflight --test-connection
+  [[ "$output" == *"configuration: $BASE/config/mycustos.conf + $local"* ]]
+  # expect_hostname is active only in mycustos.conf: the override goes to the local file.
+  [[ "$output" == *"-> printf '%s\n' expect_hostname=db-a >> $local"* ]]
+  [[ "$output" == *"-> printf '%s\n' expect_datadir=/data/a/ >> $local"* ]]
+  [[ "$output" == *"expect_port=3306|' $local"* ]]
+  [[ "$output" != *">> $BASE/config/mycustos.conf"* ]]
+}
+
 @test "suggestions work: applied with GNU sed, the configuration gets the values" {
   sed --version 2>/dev/null | head -n 1 | grep -q '^sed (GNU sed)' || skip 'GNU sed needed (sed -i, 0,/re/)'
   conf 'expect_hostname=' '# expect_port=1' '#expect_port=2'

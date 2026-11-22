@@ -15,7 +15,7 @@ cmd_check_config() {
   local rc=0 e w
   local -a warnings=()
   mc_config_load || rc=$?
-  msg "mycustos check-config - $MC_CONFIG_FILE"
+  msg "mycustos check-config - $(mc_config_files_desc)"
   say cc.schema_supported "$MC_CONFIG_SCHEMA_VERSION" "$MYCUSTOS_VERSION"
 
   if [ "$rc" -eq 0 ]; then

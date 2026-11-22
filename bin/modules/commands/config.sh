@@ -41,7 +41,7 @@ _mc_config_show() {
     (( ${#line} > width )) && width=${#line}
   done
   (( width <= 40 )) || width=40   # long paths would push every origin far right
-  msg "# mycustos config show - $MC_CONFIG_FILE"
+  msg "# mycustos config show - $(mc_config_files_desc)"
   local i
   for i in "${!MC_CONFIG_KEYS[@]}"; do
     printf '%-*s  # %s\n' "$width" "${lines[i]}" "${MC_CONF_ORIGIN[${MC_CONFIG_KEYS[i]}]}"

@@ -1,0 +1,17 @@
+# mycustos local overrides — copy to config/mycustos.local.conf (optional).
+#
+# Put here ONLY the values this server customises: every other key keeps the
+# value of mycustos.conf (or the built-in default). A key set here overrides the
+# same key of mycustos.conf, with no warning; a key twice in this file is an
+# error. Same format, same keys and same rules as mycustos.conf: read, never
+# executed; a regular file owned by the running user or root, not writable by
+# group or others.
+#
+# "mycustos config show" tells, for every key, the file and line it comes from.
+
+# Examples (uncomment and adapt):
+#instance=db-a
+#retention_days=14
+#mysql_socket=/var/lib/mysql/mysql.sock
+#expect_hostname=db-a
+#expect_port=3306

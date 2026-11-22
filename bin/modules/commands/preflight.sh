@@ -44,7 +44,7 @@ cmd_preflight() {
     exit "$MC_EX_CONFIG"
   fi
   say pf.header "${MC_CONF[instance]}"
-  _pf_ok "$(mc_t pf.configuration "$MC_CONFIG_FILE")"
+  _pf_ok "$(mc_t pf.configuration "$(mc_config_files_desc)")"
 
   local auth_ok=0
   _pf_check_auth && auth_ok=1
@@ -265,11 +265,14 @@ _pf_q() {
   printf '%q' "$1"
 }
 
-# _pf_fix KEY VALUE: the command that sets KEY=VALUE in mycustos.conf. It
-# replaces the active line, or else the first commented one ("#KEY=..."), or
-# else appends the key. Only the configuration file is ever targeted.
+# _pf_fix KEY VALUE: the command that sets KEY=VALUE in the configuration:
+# mycustos.local.conf when it exists (it holds what this server customises and
+# overrides mycustos.conf), mycustos.conf otherwise. It replaces the active
+# line, or else the first commented one ("#KEY=..."), or else appends the key.
+# Only the configuration files are ever targeted.
 _pf_fix() {
   local key=$1 value=$2 file=$MC_CONFIG_FILE v
+  [ "$MC_CONFIG_LOCAL_LOADED" -ne 1 ] || file=$MC_CONFIG_LOCAL_FILE
   local active="^[[:space:]]*${key}[[:space:]]*="
   local commented="^[[:space:]]*#[[:space:]]*${key}[[:space:]]*="
   # In the sed replacement \, & and the | delimiter are special; in the

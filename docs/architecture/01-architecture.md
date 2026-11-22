@@ -82,7 +82,8 @@ like system ones (`etc/`, `var/`, `lib/`).
 │           ├── version.sh
 │           └── help.sh
 ├── config/
-│   ├── mycustos.conf               # configuration
+│   ├── mycustos.conf               # configuration shared by every server
+│   ├── mycustos.local.conf         # optional: what this server customises
 │   ├── backup-credentials.conf     # MySQL credentials, mode 600
 │   ├── lsn.txt                     # INCR chain state (runtime)
 │   ├── backup_chain.state          # INCR chain state (runtime)
@@ -113,6 +114,7 @@ mycustos/
 │   └── modules/...
 ├── config/                         # ← goes to the server (templates only)
 │   ├── mycustos.conf.example
+│   ├── mycustos.local.conf.example
 │   └── backup-credentials.conf.example
 ├── contrib/                        # optional examples, not installed
 │   ├── systemd/                    # mycustos-backup@.service + .timer
@@ -248,9 +250,16 @@ language=
 - The only expansions allowed are `${MYCUSTOS_HOME}`, `${MYCUSTOS_CONFIG}`,
   `${MYCUSTOS_DATA}` and `${MYCUSTOS_LOGS}`. An unknown key is an error, so typos are
   reported at once.
-- Precedence: **CLI > environment `MYCUSTOS_<KEY>` > `mycustos.conf` > default**. The
-  defaults live in the schema in the code, so `mycustos.conf` holds only the local
-  values.
+- Precedence: **CLI > environment `MYCUSTOS_<KEY>` > `mycustos.local.conf` >
+  `mycustos.conf` > default**. The defaults live in the schema in the code, so
+  `mycustos.conf` holds only the values chosen for the installation.
+- **Local overrides** (#15): the optional `mycustos.local.conf`, next to the main file
+  (`--config /x/foo.conf` reads `/x/foo.local.conf`), is read after it with the same
+  parser, whitelist and safety rules. `mycustos.conf` can then be the same file on every
+  server, and the local file holds only what one server customises: a key set in both
+  takes the local value, with no warning; a key twice in the same file stays an error.
+  Every origin is still `<file>:<line>`, so `config show` tells where each value comes
+  from.
 - **`config_schema`** versions the format: it changes only when the format does, not at
   every release.
 - Exit codes and their meaning live in `core/errors.sh`.
@@ -395,6 +404,8 @@ For each problem, `preflight` **suggests** the command that fixes it, and never 
 - missing configuration: `cp -p -- config/mycustos.conf.example config/mycustos.conf`;
 - a key to change, even when commented out: `sed -i -E 's|^#?[[:space:]]*KEY=.*|KEY=value|' config/mycustos.conf`;
 - a missing key: `printf 'KEY=value\n' >> config/mycustos.conf`;
+- when `mycustos.local.conf` exists, every key fix targets it instead, since it holds
+  what the server customises;
 - hints tied to what actually happened: missing login path, missing compressor,
   NetBackup without policy or schedule, 1356 errors already in earlier logs (then it
   suggests `mysqldump_allow_invalid_views`, see 4.6).
@@ -445,7 +456,7 @@ credentials.
 |---|---|---|---|
 | **F0** ✅ | v0.1.0 | repository, LICENSE/NOTICE/SPDX, layout, `bin/mycustos`, `core/` (common, log, config, errors), `version` / `help`, CI | `mycustos help` and the tests run in CI |
 | **F1** ✅ | v0.2.0 | `core/auth.sh`, `preflight`, `check-config`, `config show` | commands without side effects, tested with the mocks |
-| **F2 — Safe target** | v0.3.0 | languages (#13), `core/target.sh` (#6), `core/topology.sh` and exit code 9 (#7), `inspect` (#8), preflight with identity, topology and copy-ready fixes (#9), safe `mycustos.conf` (#10), `setup` wizard (#11) | all read-only, tested with the `mysql` mock |
+| **F2 — Safe target** | v0.3.0 | languages (#13), `core/target.sh` (#6), `core/topology.sh` and exit code 9 (#7), `inspect` (#8), preflight with identity, topology and copy-ready fixes (#9), safe `mycustos.conf` (#10), `mycustos.local.conf` overrides (#15), `setup` wizard (#11) | all read-only, tested with the `mysql` mock |
 | **F3 — First local FULL** | v0.4.0 | mysqldump engine with footer and invalid views, simple packaging gzip/zstd, archive target `none` + retention, archive check + `keep_backup_dir`, lock, `.OK` / `.WARN` / `.ERR` flags, summary from the trap, `backup --dry-run`, `status` | first end-to-end FULL (mocks + test VM) |
 | **F4 — Split and NetBackup** | v0.5.0 | split, generic job queue, `netbackup` without `-L`, job inventory, `archive_include_existing`, `mycustos archive`, monitor | split and parallel sending tested with the mocks |
 | **F5 — INCR chain** | v0.6.0 | `core/chain.sh` with mysqlbackup, checks of 4.9 | tests on the LSN chain, error case included |
@@ -458,7 +469,7 @@ credentials.
   `logs/`. No `etc/`, `var/`, `lib/`.
 - Code in **`bin/modules/`**, grouped by kind.
 - Configuration file: **`config/mycustos.conf`**, `KEY=value`, parsed against a
-  whitelist, never `source`d.
+  whitelist, never `source`d; optional overrides in **`config/mycustos.local.conf`**.
 - INCR chain state and lock **in `config/`**.
 - Flags `.OK`, `.WARN`, `.ERR`, `.TIMEOUT` and statuses as in 4.7.
 - Exit code **9** for a wrong or unsupported target.

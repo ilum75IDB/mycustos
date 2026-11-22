@@ -44,7 +44,7 @@ help.cmd.status=Show the outcome of the last run
 help.cmd.config=Show the effective configuration or import an existing file
 help.cmd.version=Show version and attribution
 help.cmd.help=Show this help, or the help of a command
-help.opt.config=Configuration file (default: <home>/config/mycustos.conf)
+help.opt.config=Configuration file (default: <home>/config/mycustos.conf; overridden by FILE.local.conf when present)
 help.opt.home=Base of config/, data/ and logs/ (default: the installation)
 help.opt.lang=Language of the messages (default: language= or the system locale)
 help.opt.quiet=Show only warnings and errors

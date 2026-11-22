@@ -31,6 +31,11 @@ and the project follows [Semantic Versioning](https://semver.org/).
 - `core/config.sh`: an unsafe `mycustos.conf` is refused with exit `3` (symbolic
   link, owner other than the running user or root, writable by group or others),
   with the `chmod`/`chown` that fixes it (#10).
+- Optional `mycustos.local.conf`, read after `mycustos.conf` and overriding it key
+  by key, so the main file can be shared by every server and the local one holds
+  only what a server customises; same rules and safety checks, origins shown by
+  `config show`, fix commands of `preflight` aimed at it; template
+  `config/mycustos.local.conf.example` (#15).
 
 ## [0.2.0] - 2026-10-23
 
