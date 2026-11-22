@@ -20,6 +20,7 @@
 #   MC_TARGET_STATUS   ok | rejected | config | unreachable
 #                      (config: an expectation that cannot apply to this product)
 #   MC_TARGET_ERRORS   the reasons, translated, one per element
+#   MC_TARGET_ERRORS_EN  the same reasons in English, for the log
 #   MC_TARGET_PRODUCT  MySQL | MariaDB
 #   MC_TARGET_VERSION, MC_TARGET_VERSION_COMMENT, MC_TARGET_HOSTNAME,
 #   MC_TARGET_PORT, MC_TARGET_SOCKET, MC_TARGET_DATADIR,
@@ -33,6 +34,7 @@
 mc_target_reset() {
   MC_TARGET_STATUS=''
   MC_TARGET_ERRORS=()
+  MC_TARGET_ERRORS_EN=()
   MC_TARGET_PRODUCT=''
   MC_TARGET_VERSION=''
   MC_TARGET_VERSION_COMMENT=''
@@ -51,7 +53,7 @@ mc_target_check() {
   mc_target_reset
 
   if ! row=$(mc_auth_query 'SELECT @@version, @@version_comment' 2>/dev/null) || [ -z "$row" ]; then
-    _mc_target_fail unreachable "$(mc_t tgt.version_failed)"
+    _mc_target_fail unreachable tgt.version_failed
     return 1
   fi
   # Tabs are IFS whitespace: two in a row would merge and shift the fields.
@@ -68,16 +70,16 @@ mc_target_check() {
 
   # An expectation that cannot apply to this product is a configuration error.
   if [ "$MC_TARGET_PRODUCT" = MariaDB ] && [ -n "${MC_CONF[expect_server_uuid]}" ]; then
-    _mc_target_fail config "$(mc_t tgt.uuid_on_mariadb)"
+    _mc_target_fail config tgt.uuid_on_mariadb
   fi
   if [ "$MC_TARGET_PRODUCT" = MySQL ] && [ -n "${MC_CONF[expect_server_id]}" ]; then
-    _mc_target_fail config "$(mc_t tgt.id_on_mysql)"
+    _mc_target_fail config tgt.id_on_mysql
   fi
   [ -z "$MC_TARGET_STATUS" ] || return 1
 
   if ! row=$(mc_auth_query "SELECT @@hostname, @@port, @@socket, @@datadir, @@$id_column" 2>/dev/null) ||
      [ -z "$row" ]; then
-    _mc_target_fail unreachable "$(mc_t tgt.metadata_failed "$id_column")"
+    _mc_target_fail unreachable tgt.metadata_failed "$id_column"
     return 1
   fi
   row=${row//$'\t'/$'\x1f'}
@@ -99,15 +101,15 @@ mc_target_check() {
       server_id)   value=$MC_TARGET_SERVER_ID ;;
     esac
     if [ -z "$value" ] || [ "$value" = NULL ]; then
-      _mc_target_fail rejected "$(mc_t tgt.metadata_missing "@@$field")"
+      _mc_target_fail rejected tgt.metadata_missing "@@$field"
     fi
   done
   if [ -n "$MC_TARGET_PORT" ] && ! [[ "$MC_TARGET_PORT" =~ ^[0-9]+$ ]]; then
-    _mc_target_fail rejected "$(mc_t tgt.metadata_invalid "@@port" "$MC_TARGET_PORT")"
+    _mc_target_fail rejected tgt.metadata_invalid "@@port" "$MC_TARGET_PORT"
   fi
   if [ -n "$MC_TARGET_SERVER_ID" ] && [ "$MC_TARGET_SERVER_ID" != NULL ] &&
      ! [[ "$MC_TARGET_SERVER_ID" =~ ^[0-9]+$ ]]; then
-    _mc_target_fail rejected "$(mc_t tgt.metadata_invalid "@@server_id" "$MC_TARGET_SERVER_ID")"
+    _mc_target_fail rejected tgt.metadata_invalid "@@server_id" "$MC_TARGET_SERVER_ID"
   fi
   [ -z "$MC_TARGET_STATUS" ] || return 1
 
@@ -124,10 +126,13 @@ mc_target_check() {
 
 # --- internals ---------------------------------------------------------------
 
-# _mc_target_fail STATUS MESSAGE: the first status wins, every message is kept.
+# _mc_target_fail STATUS KEY [ARGS...]: the first status wins, every message
+# is kept, translated and in English.
 _mc_target_fail() {
   [ -n "$MC_TARGET_STATUS" ] || MC_TARGET_STATUS=$1
-  MC_TARGET_ERRORS+=("$2")
+  shift
+  MC_TARGET_ERRORS+=("$(mc_t "$@")")
+  MC_TARGET_ERRORS_EN+=("$(mc_t_en "$@")")
 }
 
 # _mc_target_expect KEY ACTUAL [nocase|dir]: compares when KEY is set.
@@ -142,6 +147,6 @@ _mc_target_expect() {
             while [[ "$e" == */ && "$e" != / ]]; do e=${e%/}; done ;;
   esac
   [ "$a" = "$e" ] && return 0
-  _mc_target_fail rejected "$(mc_t tgt.mismatch "$key" "$expected" "$actual")"
+  _mc_target_fail rejected tgt.mismatch "$key" "$expected" "$actual"
   return 1
 }

@@ -179,6 +179,24 @@ The product is detected first, from `@@version` and `@@version_comment`. An
 instance that does not report hostname, port, socket, datadir and its UUID or
 server id is always refused.
 
+### Topology: only the PRIMARY is backed up
+
+After the identity, mycustos looks at the role of the node. Any doubt refuses
+the backup; an error while reading the topology is never taken for a single
+instance.
+
+| Situation | Result |
+|---|---|
+| MySQL without Group Replication | backup |
+| Group Replication, this node `PRIMARY` and `ONLINE` | backup |
+| Group Replication, this node `SECONDARY` and `ONLINE` | no backup, exit `0`, no flag; the log names host, IP and port of the PRIMARY |
+| Group Replication with no visible member, inconsistent members, a number of online PRIMARY other than 1, this node not `ONLINE`, or `performance_schema.replication_group_members` not readable | refused, exit `9` |
+| MariaDB with `wsrep_on=OFF` | backup |
+| MariaDB with `wsrep_on=ON` (Galera), or `wsrep_on` missing or unexpected | refused, exit `9` |
+
+Classic asynchronous replication is not evaluated. mycustos never runs anything
+on the PRIMARY: it only says where it is.
+
 ### Authentication
 
 Credentials never appear on a command line or in a log: mycustos passes only the

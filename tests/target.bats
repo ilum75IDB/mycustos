@@ -181,6 +181,7 @@ errors() {
   mc_i18n_select it
   check expect_port=3310 || true
   [[ "$(errors)" == 'expect_port: atteso 3310, il server riporta 3306' ]]
+  [ "${MC_TARGET_ERRORS_EN[0]}" = 'expect_port: expected 3310, the server reports 3306' ]
 }
 
 @test "config: expect_* keys are validated" {

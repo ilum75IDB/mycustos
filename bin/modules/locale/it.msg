@@ -133,3 +133,17 @@ tgt.metadata_invalid=valore di %s non valido restituito dal server: %s
 tgt.mismatch=%s: atteso %s, il server riporta %s
 tgt.uuid_on_mariadb=expect_server_uuid è impostato, ma il server è MariaDB, che non ha server_uuid: usare expect_server_id
 tgt.id_on_mysql=expect_server_id è impostato, ma il server è MySQL: usare expect_server_uuid
+
+# --- topology ------------------------------------------------------------------
+topo.plugin_unreadable=impossibile leggere lo stato del plugin Group Replication (information_schema.PLUGINS): la topologia è sconosciuta
+topo.members_unreadable=Group Replication è installato, ma performance_schema.replication_group_members non è leggibile
+topo.no_members=Group Replication è installato, ma nessun membro del gruppo è visibile
+topo.member_invalid=membro del gruppo incoerente: %s
+topo.member_duplicate=il membro %s compare più di una volta nel gruppo
+topo.local_missing=questo nodo (%s) non è tra i membri del gruppo
+topo.local_not_online=questo nodo è %s nel gruppo, non ONLINE
+topo.primary_count=%s PRIMARY online nel gruppo, ne è atteso esattamente 1
+topo.secondary=questo nodo è un SECONDARY del gruppo: nessun backup qui. Il PRIMARY è %s (IP %s), porta %s
+topo.wsrep_unreadable=impossibile leggere @@wsrep_on: lo stato Galera è sconosciuto
+topo.wsrep_on=wsrep_on=ON: cluster Galera, non supportato (la regola "solo PRIMARY" non si applica a un cluster multi-primary)
+topo.wsrep_ambiguous=valore inatteso di @@wsrep_on: %s
