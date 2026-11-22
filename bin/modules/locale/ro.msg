@@ -52,6 +52,9 @@ help.opt.version=La fel ca "mycustos version"
 
 # --- configuration ----------------------------------------------------------------
 cfg.not_found=fișierul de configurare nu a fost găsit sau nu poate fi citit
+cfg.unsafe_symlink=trebuie să fie un fișier obișnuit, nu o legătură simbolică: indică fișierul real cu --config sau înlocuiește legătura cu o copie
+cfg.unsafe_owner=aparține uid-ului %s: trebuie să aparțină utilizatorului care rulează mycustos sau lui root (rulează: %s)
+cfg.unsafe_perms=poate fi scris de grup sau de alții (rulează: %s)
 cfg.expected_kv=se aștepta cheie=valoare
 cfg.unknown_key=cheie necunoscută: %s
 cfg.duplicate_key=cheie duplicată: %s (deja setată la linia %s)

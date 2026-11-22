@@ -52,6 +52,9 @@ help.opt.version=Come "mycustos version"
 
 # --- configuration ----------------------------------------------------------------
 cfg.not_found=file di configurazione non trovato o non leggibile
+cfg.unsafe_symlink=deve essere un file regolare, non un link simbolico: indica il file reale con --config o sostituisci il link con una copia
+cfg.unsafe_owner=appartiene all'uid %s: deve appartenere all'utente che esegue mycustos o a root (esegui: %s)
+cfg.unsafe_perms=scrivibile dal gruppo o da altri (esegui: %s)
 cfg.expected_kv=atteso chiave=valore
 cfg.unknown_key=chiave sconosciuta: %s
 cfg.duplicate_key=chiave duplicata: %s (già impostata alla riga %s)

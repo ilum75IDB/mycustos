@@ -14,6 +14,11 @@
 # The only expansions are ${MYCUSTOS_HOME}, ${MYCUSTOS_CONFIG}, ${MYCUSTOS_DATA}
 # and ${MYCUSTOS_LOGS} (data_dir and logs_dir may use only the first two).
 #
+# The file decides where the data goes and which credentials are used, so it
+# must be safe even though it is never executed: a regular file (not a
+# symbolic link), owned by the running user or root, not writable by group or
+# others. Any violation is a configuration error.
+#
 # Precedence: command-line option > environment (MYCUSTOS_<KEY>) > file > default.
 #
 # After mc_config_load:
@@ -34,6 +39,7 @@ MC_CONF_RAW=()
 MC_CONF_ORIGIN=()
 MC_CONFIG_KEYS=()
 MC_CONFIG_ERRORS=()
+MC_CONFIG_UNSAFE=()
 MC_CONFIG_FILE=''
 MYCUSTOS_CONFIG=''
 MYCUSTOS_DATA=''
@@ -111,8 +117,15 @@ mc_config_load() {
 
   MC_CONFIG_FILE=$(mc_config_file)
   MYCUSTOS_CONFIG=$(dirname -- "$MC_CONFIG_FILE")
-  if [ ! -f "$MC_CONFIG_FILE" ] || [ ! -r "$MC_CONFIG_FILE" ]; then
+  if [ ! -L "$MC_CONFIG_FILE" ] && { [ ! -f "$MC_CONFIG_FILE" ] || [ ! -r "$MC_CONFIG_FILE" ]; }; then
     MC_CONFIG_ERRORS+=("$MC_CONFIG_FILE: $(mc_t cfg.not_found)")
+    return 1
+  fi
+  if ! _mc_config_safety "$MC_CONFIG_FILE"; then
+    local e
+    for e in "${MC_CONFIG_UNSAFE[@]}"; do
+      MC_CONFIG_ERRORS+=("$MC_CONFIG_FILE: $e")
+    done
     return 1
   fi
 
@@ -129,6 +142,7 @@ mc_config_peek() {
   local file line key value
   file=$(mc_config_file)
   [ -f "$file" ] && [ -r "$file" ] || return 1
+  _mc_config_safety "$file" || return 1
   while IFS= read -r line || [ -n "$line" ]; do
     _mc_trim line "${line%$'\r'}"
     [[ "$line" == *=* && "$line" != '#'* ]] || continue
@@ -173,6 +187,35 @@ mc_config_load_or_die() {
 }
 
 # --- internals ---------------------------------------------------------------
+
+# _mc_config_safety FILE: fills MC_CONFIG_UNSAFE with every reason why FILE
+# must not be read (translated, with the command that fixes it) and returns 1
+# when there is at least one. Portable: "[ -O ]" and "ls -ln", never stat. The path is absolute,
+# so the commands need no "--" (BSD chmod would take it for a file).
+_mc_config_safety() {
+  local file=$1 q ls uid
+  MC_CONFIG_UNSAFE=()
+  q=$(printf '%q' "$file")
+  if [ -L "$file" ]; then
+    MC_CONFIG_UNSAFE+=("$(mc_t cfg.unsafe_symlink)")
+    return 1
+  fi
+  if [ ! -f "$file" ]; then
+    MC_CONFIG_UNSAFE+=("$(mc_t cfg.not_found)")
+    return 1
+  fi
+  ls=$(LC_ALL=C ls -ldn -- "$file" 2>/dev/null) || ls=''
+  if [ ! -O "$file" ]; then
+    uid=$(printf '%s\n' "$ls" | awk '{ print $3 }')
+    if [ "$uid" != 0 ]; then
+      MC_CONFIG_UNSAFE+=("$(mc_t cfg.unsafe_owner "${uid:-?}" "chown $(id -un) $q")")
+    fi
+  fi
+  if [ "${ls:5:1}" = w ] || [ "${ls:8:1}" = w ]; then
+    MC_CONFIG_UNSAFE+=("$(mc_t cfg.unsafe_perms "chmod go-w $q")")
+  fi
+  [ ${#MC_CONFIG_UNSAFE[@]} -eq 0 ]
+}
 
 # _mc_unquote VAR: removes one pair of matching single or double quotes.
 _mc_unquote() {
