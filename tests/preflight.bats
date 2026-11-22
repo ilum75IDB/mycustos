@@ -308,8 +308,7 @@ processes() {
   while IFS= read -r line; do
     eval "${line#*-> }"
   done < <(printf '%s\n' "$output" | grep -E -- '-> (sed|printf) ')
-  run mc_config_load
-  [ "$status" -eq 0 ]
+  mc_config_load || { mc_test_errors; return 1; }
   [ "${MC_CONF[expect_hostname]}" = db-a ]
   [ "${MC_CONF[expect_port]}" = 3306 ]
   [ "${MC_CONF[expect_datadir]}" = /data/a/ ]
