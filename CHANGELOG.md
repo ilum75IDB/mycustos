@@ -20,6 +20,9 @@ and the project follows [Semantic Versioning](https://semver.org/).
 - `core/topology.sh`: role of the node. Backup only on a single instance or on
   the Group Replication PRIMARY; a SECONDARY is skipped; Galera, an unreadable or
   inconsistent group and an unreadable `wsrep_on` are refused (#7).
+- `mycustos inspect`: which instance is reached and what a backup would do there,
+  as stable `KEY=value` lines for scripts; read-only (#8).
+- `core/engine.sh`: the engine detection, shared by `preflight` and `inspect`.
 - Exit code `9`: wrong or unsupported target.
 
 ## [0.2.0] - 2026-10-23

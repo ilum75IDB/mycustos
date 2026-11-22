@@ -51,6 +51,8 @@ mc_target_reset
 mc_target_check() {
   local row id_column id_value field value
   mc_target_reset
+  # The queries run in "$(...)": the cnf isolation file must exist before.
+  mc_auth_prepare || { _mc_target_fail unreachable core.tmpdir; return 1; }
 
   if ! row=$(mc_auth_query 'SELECT @@version, @@version_comment' 2>/dev/null) || [ -z "$row" ]; then
     _mc_target_fail unreachable tgt.version_failed

@@ -36,6 +36,7 @@ help.languages=Sprachen: %s (aktuell: %s)
 help.installation=Installation: %s
 help.cmd.backup=Führt ein FULL- oder INCR-Backup aus (--type full|incr, --dry-run)
 help.cmd.preflight=Prüft die Voraussetzungen und schlägt Konfigurationsänderungen vor (nur lesend)
+help.cmd.inspect=Zeigt, welche Instanz erreicht wird und was ein Backup dort tun würde (nur lesend)
 help.cmd.check_config=Prüft mycustos.conf und meldet alle Probleme (nur lesend)
 help.cmd.status=Zeigt das Ergebnis des letzten Laufs
 help.cmd.config=Zeigt die wirksame Konfiguration oder migriert eine Altdatei
@@ -147,3 +148,6 @@ topo.secondary=dieser Knoten ist ein SECONDARY der Gruppe: hier kein Backup. Der
 topo.wsrep_unreadable=@@wsrep_on kann nicht gelesen werden: der Galera-Status ist unbekannt
 topo.wsrep_on=wsrep_on=ON: Galera-Cluster, nicht unterstützt (die Regel "nur PRIMARY" gilt nicht für einen Multi-Primary-Cluster)
 topo.wsrep_ambiguous=unerwarteter Wert von @@wsrep_on: %s
+
+# --- inspect ---------------------------------------------------------------------
+insp.mysql_missing=mysql-Client nicht im PATH gefunden

@@ -56,6 +56,8 @@ mc_topology_check() {
     printf 'mycustos: internal error: mc_topology_check needs a successful mc_target_check\n' >&2
     return 2
   fi
+  # The queries run in "$(...)": the cnf isolation file must exist before.
+  mc_auth_prepare || { _mc_topology_fail core.tmpdir; return 1; }
   case "$MC_TARGET_PRODUCT" in
     MariaDB) _mc_topology_mariadb ;;
     *)       _mc_topology_mysql ;;

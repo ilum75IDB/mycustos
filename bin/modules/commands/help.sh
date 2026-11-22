@@ -8,6 +8,7 @@ mc_command_summary() {
   case "$1" in
     backup)       mc_t help.cmd.backup ;;
     preflight)    mc_t help.cmd.preflight ;;
+    inspect)      mc_t help.cmd.inspect ;;
     check-config) mc_t help.cmd.check_config ;;
     status)       mc_t help.cmd.status ;;
     config)       mc_t help.cmd.config ;;

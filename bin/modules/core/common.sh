@@ -9,7 +9,7 @@
 #   die "$MC_EX_CONFIG" cfg.not_found "$file"
 
 # Commands of the CLI, in the order shown by "mycustos help".
-readonly MC_COMMANDS=(backup preflight check-config status config version help)
+readonly MC_COMMANDS=(backup preflight inspect check-config status config version help)
 
 # Prints a text as it is (already translated, or not meant to be).
 msg()  { printf '%s\n' "$*"; }

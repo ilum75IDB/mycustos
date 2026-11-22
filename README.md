@@ -8,7 +8,7 @@
 > **Pre-release — not usable yet.** mycustos is a ground-up re-engineering of a Bash backup toolkit
 > that has been running on enterprise MySQL servers. The new code base is being written in phases
 > (see [Roadmap](#roadmap)). Today only the read-only commands work (`preflight`,
-> `check-config`, `config show`, `help`, `version`): mycustos cannot run a backup yet.
+> `inspect`, `check-config`, `config show`, `help`, `version`): mycustos cannot run a backup yet.
 > Do not use it to protect real data until a release says otherwise.
 
 ## Why
@@ -66,6 +66,7 @@ bin/mycustos version
 ```text
 mycustos backup [--type full|incr] [--dry-run]   # planned
 mycustos preflight [--test-connection]           # available
+mycustos inspect                                 # available
 mycustos check-config                            # available
 mycustos status                                  # planned
 mycustos config show                             # available
@@ -94,6 +95,40 @@ MySQL server and, with `engine=auto`, shows which engine the server edition sele
 
 Exit code `0` when nothing failed (warnings allowed), `3` for a configuration
 problem, `4` for an environment problem.
+
+### inspect
+
+`mycustos inspect` connects to the server and shows which instance mycustos reaches
+and what a backup would do there, without writing anything (no log, no flag, no
+lock). The output is one `KEY=value` per line, always the same keys in the same
+order, so scripts can rely on it:
+
+```text
+PRODUCT=MySQL
+VERSION=8.0.36
+VERSION_COMMENT=MySQL Community Server - GPL
+HOSTNAME=db-a
+PORT=3306
+SOCKET=/run/mysqld/mysqld.sock
+DATADIR=/var/lib/mysql/
+SERVER_UUID=3e11fa47-71ca-11e1-9e33-c80aa9429562
+SERVER_ID=
+AUTH=cnf:/backup/mycustos/config/backup-credentials.conf
+TOPOLOGY=SINGLE_INSTANCE
+ROLE=
+PRIMARY_HOST=
+PRIMARY_IP=
+PRIMARY_PORT=
+ENGINE=mysqldump
+BACKUP_ALLOWED=yes
+```
+
+Keys and values are never translated; a value that is not known is empty. `AUTH`
+names the option file or the login path, never the credentials. The reasons of a
+refusal go to stderr. Exit code `0` when the target is acceptable (a Group
+Replication SECONDARY too, with `BACKUP_ALLOWED=no`), `3` for a configuration
+problem, `4` when the `mysql` client is missing or the server cannot be reached,
+`9` when the identity or the topology is rejected.
 
 ### check-config
 
